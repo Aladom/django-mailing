@@ -12,6 +12,8 @@ class AbstractBaseMailHeader(models.Model):
 
     class Meta:
         abstract = True
+        verbose_name = _("additional header")
+        verbose_name_plural = _("additional headers")
 
     name = models.SlugField(
         max_length=70, verbose_name=_("name"))
