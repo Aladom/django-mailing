@@ -4,6 +4,12 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 
+__all__ = [
+    'TEMPLATES_DIR', 'SUBJECT_PREFIX',
+    'pytz_is_available',
+]
+
+
 def get_setting(key, *args):
     """Retrieve a mailing specific setting from django settings.
     Accept a default value as second argument.
@@ -22,3 +28,12 @@ def get_setting(key, *args):
 
 
 TEMPLATES_DIR = get_setting('TEMPLATES_DIR', 'mailing/templates')
+SUBJECT_PREFIX = get_setting('SUBJECT_PREFIX', None)
+
+
+try:
+    import pytz  # noqa
+except ImportError:
+    pytz_is_available = False
+else:
+    pytz_is_available = True
