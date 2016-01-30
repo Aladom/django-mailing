@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from .conf import pytz_is_available
+from .conf import pytz_is_available, SUBJECT_PREFIX
 from .forms import CampaignMailHeaderForm, MailHeaderForm
 from .models import Campaign, CampaignMailHeader, Mail, MailHeader
 
@@ -30,6 +30,8 @@ class CampaignAdmin(admin.ModelAdmin):
     actions = ['enable', 'disable']
 
     inlines = [CampaignMailHeaderInline]
+    if SUBJECT_PREFIX is None:
+        exclude = ['prefix_subject']
 
     def enable(self, request, queryset):
         queryset.update(is_enabled=True)
@@ -48,8 +50,8 @@ class MailAdmin(admin.ModelAdmin):
     ]
     list_filter = ['status', 'campaign']
     search_fields = ['subject']
-
     if pytz_is_available:
         date_hierarchy = 'scheduled_on'
 
     inlines = [MailHeaderInline]
+    readonly_fields = ['sent_on']

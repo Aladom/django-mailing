@@ -111,7 +111,8 @@ class Mail(models.Model):
     html_body = models.TextField(
         verbose_name=_("html body"))
     text_body = models.TextField(
-        blank=True, verbose_name=_("text body"))
+        blank=True, verbose_name=_("text body"),
+        help_text=_("Leave blank to generate from html body."))
 
     def __str__(self):
         return '[{}] {}'.format(self.scheduled_on, self.subject)
