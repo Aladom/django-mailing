@@ -29,9 +29,15 @@ class CampaignAdmin(admin.ModelAdmin):
     search_fields = ['key', 'name', 'subject']
     actions = ['enable', 'disable']
 
-    inlines = [CampaignMailHeaderInline]
+    properties_fields = ['key', 'name', 'is_enabled']
+    emails_fields = ['subject', 'prefix_subject', 'template_file']
     if SUBJECT_PREFIX is None:
-        exclude = ['prefix_subject']
+        emails_fields.remove('prefix_subject')
+    fieldsets = [
+        (_("Campaign properties"), {'fields': properties_fields}),
+        (_("Campaign e-mails"), {'fields': emails_fields}),
+    ]
+    inlines = [CampaignMailHeaderInline]
 
     def enable(self, request, queryset):
         queryset.update(is_enabled=True)
@@ -52,6 +58,18 @@ class MailAdmin(admin.ModelAdmin):
     search_fields = ['subject']
     if pytz_is_available:
         date_hierarchy = 'scheduled_on'
+
+    fieldsets = [
+        (_("Properties"), {'fields': [
+            'campaign', 'scheduled_on',
+        ]}),
+        (_("Status"), {'fields': [
+            'status', 'sent_on', 'failure_reason',
+        ]}),
+        (_("E-mail"), {'fields': [
+            'subject', 'html_body', 'text_body',
+        ]}),
+    ]
 
     inlines = [MailHeaderInline]
     readonly_fields = ['sent_on', 'failure_reason']
