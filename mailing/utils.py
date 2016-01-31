@@ -4,7 +4,7 @@ import re
 import warnings
 
 from django.core.mail import EmailMultiAlternatives
-from django.template import Template
+from django.template import Template, Context
 from django.utils import timezone
 from django.utils.html import strip_tags
 
@@ -33,6 +33,8 @@ def render_mail(campaign, context={}):
     May raise IOError or OSError if reading the template file failed. It's up
     to you to catch these exceptions and handle them properly.
     """
+    if not isinstance(context, Context):
+        context = Context(context)
     subject = Template(campaign.subject).render(context)
     if campaign.prefix_subject and SUBJECT_PREFIX:
         subject = '{} {}'.format(SUBJECT_PREFIX, subject)
