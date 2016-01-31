@@ -39,7 +39,7 @@ def render_mail(campaign, context={}):
     if campaign.prefix_subject and SUBJECT_PREFIX:
         subject = '{} {}'.format(SUBJECT_PREFIX, subject)
 
-    with open(campaign.template_file, 'r') as f:
+    with campaign.template_file.open('r') as f:
         html_body = Template(f.read()).render(context)
 
     mail = Mail(campaign=campaign, subject=subject, html_body=html_body)
