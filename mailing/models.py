@@ -74,8 +74,8 @@ class Campaign(models.Model):
 class CampaignMailHeader(AbstractBaseMailHeader):
 
     class Meta:
-        verbose_name = _("additional header")
-        verbose_name_plural = _("additional headers")
+        verbose_name = _("extra header")
+        verbose_name_plural = _("extra headers")
 
     campaign = models.ForeignKey(
         'Campaign', models.CASCADE, related_name='extra_headers')

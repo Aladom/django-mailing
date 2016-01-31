@@ -39,16 +39,16 @@ def render_mail(campaign, context={}):
     if campaign.prefix_subject and SUBJECT_PREFIX:
         subject = '{} {}'.format(SUBJECT_PREFIX, subject)
 
-    f = campaign.template_file.open('r')
-    html_body = Template(f.read()).render(context)
-    f.close()
+    with open(campaign.template_file.path, 'r') as f:
+        html_body = Template(f.read()).render(context)
 
     mail = Mail(campaign=campaign, subject=subject, html_body=html_body)
+    mail.save()
 
-    for header in campaign.additional_headers.all():
-        mail.headers.add(
-            name=header['name'],
-            value=Template(header['value']).render(context))
+    for header in campaign.extra_headers.all():
+        mail.headers.create(
+            name=header.name,
+            value=Template(header.value).render(context))
 
     return mail
 
