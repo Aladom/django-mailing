@@ -5,6 +5,7 @@ import warnings
 
 from django.core.mail import EmailMultiAlternatives
 from django.template import Template
+from django.utils import timezone
 from django.utils.html import strip_tags
 
 from .conf import SUBJECT_PREFIX, UNEXISTING_CAMPAIGN_FAIL_SILENTLY
@@ -88,7 +89,13 @@ def queue_mail(campaign_key, context, fail_silently=None):
 
 
 def send_mail(mail):
-    """Send a Mail instance."""
+    """Send a Mail instance.
+    Note that this does not alter the mail instance.
+    It is the responsibility of the caller to set `status` to Mail.STATUS_SENT
+    and `sent_on` to the current datetime.
+
+    Return the `EmailMultiAlternatives` instance of the sent mail.
+    """
     subject = mail.subject
     html_body = mail.html_body
     text_body = mail.text_body or html_to_text(html_body)
@@ -97,3 +104,40 @@ def send_mail(mail):
     msg = EmailMultiAlternatives(subject, text_body, headers=headers)
     msg.attach_alternative(html_body, 'text/html')
     msg.send()
+    return msg
+
+
+def send_queued_mails():
+    """Send Mail objects with `status` Mail.STATUS_PENDING and having
+    `scheduled_on` set on a past date.
+
+    Set `status` Mail.STATUS_SENT and `sent_on` to current datetime for each
+    mail successfully sent.
+    Set `status` Mail.STATUS_FAILURE and appropriate `failure_reason` for each
+    mail that failed.
+
+    Return a 2-tuple (nb_successes, nb_failures) representing the number of
+    mails successfully sent and failures.
+    """
+    now = timezone.now()
+    mails = Mail.objects.filter(status=Mail.STATUS_PENDING,
+                                scheduled_on__lte=now)
+    successes = []
+
+    for mail in mails:
+        try:
+            send_mail(mail)
+        except Exception as e:
+            mail.status = Mail.STATUS_FAILURE
+            mail.failure_reason = str(e)
+        else:
+            successes.append(mail.pk)
+
+    if successes:
+        mails.filter(pk__in=successes).update(status=Mail.STATUS_SENT,
+                                              sent_on=now)
+
+    nb_successes = len(successes)
+    nb_failures = len(mails) - successes
+
+    return nb_successes, nb_failures

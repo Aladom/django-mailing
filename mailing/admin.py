@@ -54,4 +54,4 @@ class MailAdmin(admin.ModelAdmin):
         date_hierarchy = 'scheduled_on'
 
     inlines = [MailHeaderInline]
-    readonly_fields = ['sent_on']
+    readonly_fields = ['sent_on', 'failure_reason']

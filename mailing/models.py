@@ -108,7 +108,7 @@ class Mail(models.Model):
     scheduled_on = models.DateTimeField(
         default=timezone.now, verbose_name=_("scheduled on"))
     sent_on = models.DateTimeField(
-        blank=True, null=True, verbose_name=_("sent on"))
+        blank=True, null=True, editable=False, verbose_name=_("sent on"))
     subject = models.CharField(
         max_length=255, verbose_name=_("subject"))
     html_body = models.TextField(
@@ -116,6 +116,8 @@ class Mail(models.Model):
     text_body = models.TextField(
         blank=True, verbose_name=_("text body"),
         help_text=_("Leave blank to generate from html body."))
+    failure_reason = models.TextField(
+        blank=True, editable=False, verbose_name=_("failure reason"))
 
     def __str__(self):
         return '[{}] {}'.format(self.scheduled_on, self.subject)
