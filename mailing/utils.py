@@ -1,9 +1,27 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
+import re
+
+from django.core.mail import EmailMultiAlternatives
 from django.template import Template
+from django.utils.html import strip_tags
 
 from .conf import SUBJECT_PREFIX
-from .models import Mail
+from .models import Mail, Campaign
+
+
+__all__ = [
+    'render_mail', 'queue_mail', 'send_mail', 'html_to_text',
+]
+
+
+script_tags_regex = re.compile('<script.*>.*</script>', re.I | re.S)
+
+
+def html_to_text(html):
+    text = script_tags_regex.sub('', html)
+    text = strip_tags(text)
+    return text
 
 
 def render_mail(campaign, context={}):
@@ -32,3 +50,14 @@ def queue_mail(campaign_key, context):
     mail = render_mail(campaign, context)
     mail.save()
     return mail
+
+
+def send_mail(mail):
+    subject = mail.subject
+    html_body = mail.html_body
+    text_body = mail.text_body or html_to_text(html_body)
+    headers = mail.get_headers()
+
+    msg = EmailMultiAlternatives(subject, text_body, headers=headers)
+    msg.attach_alternative(html_body, 'text/html')
+    msg.send()

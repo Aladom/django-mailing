@@ -1,12 +1,18 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
-from django.conf import settings
 from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from .conf import TEMPLATES_DIR, SUBJECT_PREFIX
+
+
+class MailHeaderManager(models.Manager):
+
+    def items(self):
+        for header in self.get_queryset():
+            yield header['name'], header['value']
 
 
 class AbstractBaseMailHeader(models.Model):
@@ -113,6 +119,9 @@ class Mail(models.Model):
     def __str__(self):
         return '[{}] {}'.format(self.scheduled_on, self.subject)
 
+    def get_headers(self):
+        return dict(self.headers.items())
+
 
 class MailHeader(AbstractBaseMailHeader):
 
@@ -122,3 +131,5 @@ class MailHeader(AbstractBaseMailHeader):
 
     mail = models.ForeignKey(
         'Mail', models.CASCADE, related_name='headers')
+
+    objects = MailHeaderManager()
