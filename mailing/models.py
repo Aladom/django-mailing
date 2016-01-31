@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.core.validators import MaxLengthValidator
 from django.db import models
+from django.template import Template
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -57,16 +58,31 @@ class Campaign(models.Model):
             "Even if a script requests for sending. This is a way to turn off "
             "some campaigns temporarily without changing the source code."
         ))
-    from_email = models.CharField(
-        max_length=255, blank=True, verbose_name=_("sender email"),
-        help_text=_("Leave blank to use default ({}).").format(
-            settings.DEFAULT_FROM_EMAIL))
     template_file = models.FileField(
         upload_to=TEMPLATES_DIR, verbose_name=_("template file"))
 
     def __str__(self):
         return self.key
 
+    def render_mail(self, context):
+        subject = Template(self.subject).render(context)
+        if self.prefix_subject and SUBJECT_PREFIX:
+            subject = '{} {}'.format(SUBJECT_PREFIX, subject)
+
+        try:
+            with open(self.template_file, 'r') as f:
+                html_body = Template(f.read()).render(context)
+        except:
+            pass  # TODO
+
+        mail = Mail(campaign=self, subject=subject, html_body=html_body)
+
+        for header in self.additional_headers.all():
+            mail.headers.add(
+                name=header['name'],
+                value=Template(header['value']).render(context))
+
+        return mail
 
 class CampaignMailHeader(AbstractBaseMailHeader):
 
