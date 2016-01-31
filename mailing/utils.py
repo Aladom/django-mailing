@@ -133,6 +133,7 @@ def send_queued_mails():
         except Exception as e:
             mail.status = Mail.STATUS_FAILURE
             mail.failure_reason = str(e)
+            mail.save()
         else:
             successes.append(mail.pk)
 

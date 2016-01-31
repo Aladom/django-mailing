@@ -13,7 +13,7 @@ class MailHeaderManager(models.Manager):
     def items(self):
         """Return headers as a list of tuples (name, value)."""
         for header in self.get_queryset():
-            yield header['name'], header['value']
+            yield header.name, header.value
 
 
 class AbstractBaseMailHeader(models.Model):
