@@ -138,6 +138,6 @@ def send_queued_mails():
                                               sent_on=now)
 
     nb_successes = len(successes)
-    nb_failures = len(mails) - successes
+    nb_failures = len(mails) - nb_successes
 
     return nb_successes, nb_failures
