@@ -3,7 +3,6 @@
 from django.conf import settings
 from django.core.validators import MaxLengthValidator
 from django.db import models
-from django.template import Template
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -64,25 +63,6 @@ class Campaign(models.Model):
     def __str__(self):
         return self.key
 
-    def render_mail(self, context):
-        subject = Template(self.subject).render(context)
-        if self.prefix_subject and SUBJECT_PREFIX:
-            subject = '{} {}'.format(SUBJECT_PREFIX, subject)
-
-        try:
-            with open(self.template_file, 'r') as f:
-                html_body = Template(f.read()).render(context)
-        except:
-            pass  # TODO
-
-        mail = Mail(campaign=self, subject=subject, html_body=html_body)
-
-        for header in self.additional_headers.all():
-            mail.headers.add(
-                name=header['name'],
-                value=Template(header['value']).render(context))
-
-        return mail
 
 class CampaignMailHeader(AbstractBaseMailHeader):
 
