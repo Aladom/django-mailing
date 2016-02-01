@@ -50,7 +50,7 @@ def make_tag(parser, token):
 
     if tag_name[0] != tag_name[1] or tag_name[0] not in ['"', "'"]:
         raise TemplateSyntaxError(
-            "'{}' tag's first argument should be in quotes".format(token[0]))
+            "'{}' tag's first argument should be in quotes".format(tokens[0]))
     tag_name = tag_name[1:-1]
 
     options = {}
