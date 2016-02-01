@@ -7,10 +7,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: django-mailing 0.1\n"
-"Report-Msgid-Bugs-To: https://github.com/Aladom/django-mailing/issues\n"
-"POT-Creation-Date: 2016-02-01 11:44+0000\n"
-"PO-Revision-Date: 2016-02-01 14:20+0100\n"
-"Last-Translator: Antoine Pînsard <antoine.pinsard@aladom.fr>\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-02-01 14:22+0100\n"
+"PO-Revision-Date: 2016-02-01 14:26+0100\n"
+"Last-Translator: Antoine Pinsard <antoine.pinsard@aladom.fr>\n"
 "Language-Team: French\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -84,8 +84,8 @@ msgstr "clé"
 
 #: mailing/models.py:47
 msgid "The key will be used to reference this campaign from your scripts."
-msgstr "La clé sera utilisée pour référencer cette campagne depuis vos "
-"scripts."
+msgstr ""
+"La clé sera utilisée pour référencer cette campagne depuis vos scripts."
 
 #: mailing/models.py:53
 msgid "e-mail subject"
@@ -170,7 +170,7 @@ msgid "subject"
 msgstr "objet"
 
 #: mailing/models.py:115
-msgid "html body"
+msgid "HTML body"
 msgstr "corps HTML"
 
 #: mailing/models.py:117
@@ -178,7 +178,7 @@ msgid "text body"
 msgstr "corps textuel"
 
 #: mailing/models.py:118
-msgid "Leave blank to generate from html body."
+msgid "Leave blank to generate from HTML body."
 msgstr "Laisser vide pour générer à partir du HTML."
 
 #: mailing/models.py:120
