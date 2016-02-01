@@ -6,6 +6,7 @@ from django.template.exceptions import (
     TemplateDoesNotExist, TemplateSyntaxError,
 )
 from django.template.loader import get_template
+from django.utils.safestring import mark_safe
 
 
 register = Library()
@@ -24,13 +25,13 @@ class TagNode(Node):
             template = get_template(template_name)
         except TemplateDoesNotExist:
             template = Template(
-                "<{{ tag_name }}>{{ content }}</{{ tag_name }}")
+                "<{{ tag_name }}>{{ content }}</{{ tag_name }}>")
         return template
 
     def render(self, context):
         content = self.nodelist.render(context)
         self.extra_context['tag_name'] = self.tag_name
-        self.extra_context['content'] = content
+        self.extra_context['content'] = mark_safe(content)
         template_context = Context(self.extra_context)
         template = self.get_template()
         return template.render(template_context)
