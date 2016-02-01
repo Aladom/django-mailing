@@ -6,7 +6,6 @@ from django.template.exceptions import (
     TemplateDoesNotExist, TemplateSyntaxError,
 )
 from django.template.loader import get_template
-from django.utils.safestring import mark_safe
 
 
 register = Library()
@@ -31,7 +30,7 @@ class TagNode(Node):
     def render(self, context):
         content = self.nodelist.render(context)
         self.extra_context['tag_name'] = self.tag_name
-        self.extra_context['content'] = mark_safe(content)
+        self.extra_context['content'] = content
         template_context = Context(self.extra_context)
         template = self.get_template()
         return template.render(template_context)
@@ -42,11 +41,17 @@ def make_tag(parser, token):
     nodelist = parser.parse(('endtag',))
     parser.delete_first_token()
     tokens = token.split_contents()
+
     try:
         tag_name = tokens[1]
     except IndexError:
         raise TemplateSyntaxError(
             "'{}' tag requires at least 1 argument.".format(tokens[0]))
+
+    if tag_name[0] != tag_name[1] or tag_name[0] not in ['"', "'"]:
+        raise TemplateSyntaxError(
+            "'{}' tag's first argument should be in quotes".format(token[0]))
+    tag_name = tag_name[1:-1]
 
     options = {}
     remaining_bits = tokens[2:]
