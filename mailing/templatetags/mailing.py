@@ -48,7 +48,7 @@ def make_tag(parser, token):
         raise TemplateSyntaxError(
             "'{}' tag requires at least 1 argument.".format(tokens[0]))
 
-    if tag_name[0] != tag_name[1] or tag_name[0] not in ['"', "'"]:
+    if tag_name[0] != tag_name[-1] or tag_name[0] not in ['"', "'"]:
         raise TemplateSyntaxError(
             "'{}' tag's first argument should be in quotes".format(tokens[0]))
     tag_name = tag_name[1:-1]
