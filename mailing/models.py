@@ -112,10 +112,10 @@ class Mail(models.Model):
     subject = models.CharField(
         max_length=255, verbose_name=_("subject"))
     html_body = models.TextField(
-        verbose_name=_("html body"))
+        verbose_name=_("HTML body"))
     text_body = models.TextField(
         blank=True, verbose_name=_("text body"),
-        help_text=_("Leave blank to generate from html body."))
+        help_text=_("Leave blank to generate from HTML body."))
     failure_reason = models.TextField(
         blank=True, editable=False, verbose_name=_("failure reason"))
 
