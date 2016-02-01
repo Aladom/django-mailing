@@ -1,0 +1,194 @@
+# French translation of django-mailing
+# Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
+# This file is distributed under the same license as the django_mailing package.
+# Antoine Pinsard <antoine.pinsard@aladom.fr>, 2016.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: django-mailing 0.1\n"
+"Report-Msgid-Bugs-To: https://github.com/Aladom/django-mailing/issues\n"
+"POT-Creation-Date: 2016-02-01 11:44+0000\n"
+"PO-Revision-Date: 2016-02-01 14:20+0100\n"
+"Last-Translator: Antoine Pînsard <antoine.pinsard@aladom.fr>\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: mailing/admin.py:37
+msgid "Campaign properties"
+msgstr "Propriétés de la campagne"
+
+#: mailing/admin.py:38
+msgid "Campaign e-mails"
+msgstr "E-mails de la campagne"
+
+#: mailing/admin.py:44
+msgid "Enable selected e-mail campaigns"
+msgstr "Activer les campagnes d'e-mail sélectionnées"
+
+#: mailing/admin.py:48
+msgid "Disable selected e-mail campaigns"
+msgstr "Désactiver les campagnes d'e-mail sélectionnées"
+
+#: mailing/admin.py:63
+msgid "Properties"
+msgstr "Propriétés"
+
+#: mailing/admin.py:66
+msgid "Status"
+msgstr "Statut"
+
+#: mailing/admin.py:69
+msgid "E-mail"
+msgstr "E-mail"
+
+#: mailing/apps.py:9
+msgid "Mailing"
+msgstr "Mailing"
+
+#: mailing/forms.py:19 mailing/models.py:54
+msgid "May contain template variables."
+msgstr "Peut contenir des variables de template."
+
+#: mailing/models.py:23
+msgid "mail header"
+msgstr "header de l'e-mail"
+
+#: mailing/models.py:24
+msgid "mail headers"
+msgstr "headers de l'e-mail"
+
+#: mailing/models.py:27 mailing/models.py:51
+msgid "name"
+msgstr "nom"
+
+#: mailing/models.py:29
+msgid "value"
+msgstr "valeur"
+
+#: mailing/models.py:41
+msgid "e-mail campaign"
+msgstr "campagne d'e-mail"
+
+#: mailing/models.py:42
+msgid "e-mail campaigns"
+msgstr "campagnes d'e-mail"
+
+#: mailing/models.py:45
+msgid "key"
+msgstr "clé"
+
+#: mailing/models.py:47
+msgid "The key will be used to reference this campaign from your scripts."
+msgstr "La clé sera utilisée pour référencer cette campagne depuis vos "
+"scripts."
+
+#: mailing/models.py:53
+msgid "e-mail subject"
+msgstr "objet de l'e-mail"
+
+#: mailing/models.py:56
+msgid "prefix subject"
+msgstr "préfixer l'objet"
+
+#: mailing/models.py:58
+msgid "Wheter to prefix the subject with \"{}\" or not."
+msgstr "Prefixer l'objet par \"{}\" ou non."
+
+#: mailing/models.py:61
+msgid "enabled"
+msgstr "activé"
+
+#: mailing/models.py:63
+msgid ""
+"E-mails won't be sent for campaigns that are not enabled. Even if a script "
+"requests for sending. This is a way to turn off some campaigns temporarily "
+"without changing the source code."
+msgstr ""
+"Les e-mails ne seront pas envoyés pour les campagnes qui ne sont pas "
+"activées. Même si un script demande l'envoi. Cela sert à désactiver "
+"temporairement certaines campagnes sans modifier le code source."
+
+#: mailing/models.py:68
+msgid "template file"
+msgstr "fichier template"
+
+#: mailing/models.py:77
+msgid "extra header"
+msgstr "header additionnel"
+
+#: mailing/models.py:78
+msgid "extra headers"
+msgstr "header additionnel"
+
+#: mailing/models.py:88
+msgid "e-mail"
+msgstr "e-mail"
+
+#: mailing/models.py:89
+msgid "e-mails"
+msgstr "e-mails"
+
+#: mailing/models.py:96
+msgid "Pending"
+msgstr "En attente"
+
+#: mailing/models.py:97
+msgid "Sent"
+msgstr "Envoyé"
+
+#: mailing/models.py:98
+msgid "Canceled"
+msgstr "Annulé"
+
+#: mailing/models.py:99
+msgid "Failure"
+msgstr "Échec"
+
+#: mailing/models.py:104
+msgid "campaign"
+msgstr "campagne"
+
+#: mailing/models.py:107
+msgid "status"
+msgstr "statut"
+
+#: mailing/models.py:109
+msgid "scheduled on"
+msgstr "planifié le"
+
+#: mailing/models.py:111
+msgid "sent on"
+msgstr "envoyé le"
+
+#: mailing/models.py:113
+msgid "subject"
+msgstr "objet"
+
+#: mailing/models.py:115
+msgid "html body"
+msgstr "corps HTML"
+
+#: mailing/models.py:117
+msgid "text body"
+msgstr "corps textuel"
+
+#: mailing/models.py:118
+msgid "Leave blank to generate from html body."
+msgstr "Laisser vide pour générer à partir du HTML."
+
+#: mailing/models.py:120
+msgid "failure reason"
+msgstr "raison de l'échec"
+
+#: mailing/models.py:132
+msgid "header"
+msgstr "header"
+
+#: mailing/models.py:133
+msgid "headers"
+msgstr "headers"
