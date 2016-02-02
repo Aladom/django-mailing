@@ -30,6 +30,8 @@ class AbstractBaseMailHeader(models.Model):
             MaxLengthValidator(998),
         ])
 
+    objects = MailHeaderManager()
+
     def __str__(self):
         return '{}: {}'.format(self.name, self.value)
 

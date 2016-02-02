@@ -28,32 +28,48 @@ def html_to_text(html):
     return text
 
 
-def render_mail(campaign, context={}):
+def render_mail(campaign, context={}, extra_headers={}):
     """Create and return a Mail instance from a Campaign and given context.
     May raise IOError or OSError if reading the template file failed. It's up
     to you to catch these exceptions and handle them properly.
     """
     if not isinstance(context, Context):
         context = Context(context)
+
     subject = Template(campaign.subject).render(context)
+
+    mailing_ctx = {
+        'subject': subject,
+        'campaign': campaign.name,
+    }
+
+    context.update({'mailing': mailing_ctx})
+
     if campaign.prefix_subject and SUBJECT_PREFIX:
         subject = '{} {}'.format(SUBJECT_PREFIX, subject)
 
     with open(campaign.template_file.path, 'r') as f:
         html_body = Template(f.read()).render(context)
 
+    headers = {}
+    for name, value in campaign.extra_headers.items():
+        headers[name] = Template(value).render(context)
+    for name, value in extra_headers.items():
+        headers[name] = Template(value).render(context)
+
+    mailing_ctx['headers'] = headers
+    context.update({'mailing': mailing_ctx})
+
     mail = Mail(campaign=campaign, subject=subject, html_body=html_body)
     mail.save()
 
-    for header in campaign.extra_headers.all():
-        mail.headers.create(
-            name=header.name,
-            value=Template(header.value).render(context))
+    for name, value in headers.items():
+        mail.headers.create(name=name, value=value)
 
     return mail
 
 
-def queue_mail(campaign_key, context, fail_silently=None):
+def queue_mail(campaign_key, context={}, extra_headers={}, fail_silently=None):
     """Create and save a Mail instance from a Campaign and given context.
 
     If fail_silently is True and the requested campaign does not exist, emit a
@@ -85,7 +101,7 @@ def queue_mail(campaign_key, context, fail_silently=None):
             raise e
     if not campaign.is_enabled:
         return None
-    mail = render_mail(campaign, context)
+    mail = render_mail(campaign, context, extra_headers)
     mail.status = Mail.STATUS_PENDING
     mail.save()
     return mail
