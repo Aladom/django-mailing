@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
+from django.conf import settings
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
@@ -56,7 +57,7 @@ class MailAdmin(admin.ModelAdmin):
     ]
     list_filter = ['status', 'campaign']
     search_fields = ['subject']
-    if pytz_is_available:
+    if not settings.USE_TZ or pytz_is_available:
         date_hierarchy = 'scheduled_on'
 
     fieldsets = [
