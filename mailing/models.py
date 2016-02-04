@@ -3,9 +3,28 @@
 from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.utils import timezone
+from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
 from .conf import TEMPLATES_DIR, SUBJECT_PREFIX
+
+
+__all__ = [
+    'Campaign', 'Mail', 'MailHeader', 'CampaignMailHeader',
+]
+
+
+class VariableHelpTextBooleanField(models.BooleanField):
+    """Fixes an issue with help_text depending on a variable.
+
+    See https://github.com/Aladom/django-mailing/issues/2 for details.
+    """
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        if 'help_text' in kwargs:
+            del kwargs['help_text']
+        return name, path, args, kwargs
 
 
 class MailHeaderManager(models.Manager):
@@ -54,11 +73,11 @@ class Campaign(models.Model):
     subject = models.CharField(
         max_length=255, verbose_name=_("e-mail subject"),
         help_text=_("May contain template variables."))
-    prefix_subject = models.BooleanField(
+    prefix_subject = VariableHelpTextBooleanField(
         default=True, verbose_name=_("prefix subject"),
-        help_text=_(
+        help_text=lazy(lambda: _(
             "Wheter to prefix the subject with \"{}\" or not."
-        ).format(SUBJECT_PREFIX))
+        ).format(SUBJECT_PREFIX), str)())
     is_enabled = models.BooleanField(
         default=True, verbose_name=_("enabled"),
         help_text=_(
