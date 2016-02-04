@@ -14,19 +14,6 @@ __all__ = [
 ]
 
 
-class VariableHelpTextBooleanField(models.BooleanField):
-    """Fixes an issue with help_text depending on a variable.
-
-    See https://github.com/Aladom/django-mailing/issues/2 for details.
-    """
-
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
-        if 'help_text' in kwargs:
-            del kwargs['help_text']
-        return name, path, args, kwargs
-
-
 class MailHeaderManager(models.Manager):
 
     def items(self):
@@ -73,7 +60,7 @@ class Campaign(models.Model):
     subject = models.CharField(
         max_length=255, verbose_name=_("e-mail subject"),
         help_text=_("May contain template variables."))
-    prefix_subject = VariableHelpTextBooleanField(
+    prefix_subject = models.BooleanField(
         default=True, verbose_name=_("prefix subject"),
         help_text=lazy(lambda: _(
             "Wheter to prefix the subject with \"{}\" or not."
