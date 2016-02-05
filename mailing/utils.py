@@ -3,6 +3,7 @@
 import re
 import warnings
 
+from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template import Template, Context
 from django.utils import timezone
@@ -120,7 +121,11 @@ def send_mail(mail):
     text_body = mail.text_body or html_to_text(html_body)
     headers = mail.get_headers()
 
-    msg = EmailMultiAlternatives(subject, text_body, headers=headers)
+    from_email = headers.get('From', settings.DEFAULT_FROM_EMAIL)
+    to_emails = map(str.strip, headers.get('To', '').split(','))
+
+    msg = EmailMultiAlternatives(subject, text_body, from_email, to_emails,
+                                 headers=headers)
     msg.attach_alternative(html_body, 'text/html')
     msg.send()
     return msg
