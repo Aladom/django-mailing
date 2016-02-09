@@ -49,8 +49,7 @@ def render_mail(campaign, context={}, extra_headers={}):
     if campaign.prefix_subject and SUBJECT_PREFIX:
         subject = '{} {}'.format(SUBJECT_PREFIX, subject)
 
-    with open(campaign.template_file.path, 'r') as f:
-        html_body = Template(f.read()).render(context)
+    html_body = campaign.get_template().render(context)
 
     headers = {}
     for name, value in campaign.extra_headers.items():

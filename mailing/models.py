@@ -2,6 +2,8 @@
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
 from django.core.validators import MaxLengthValidator
 from django.db import models
+from django.template import Template
+from django.template.loader import get_template
 from django.utils import timezone
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
@@ -86,10 +88,22 @@ class Campaign(models.Model):
             "some campaigns temporarily without changing the source code."
         ))
     template_file = models.FileField(
-        upload_to=TEMPLATES_DIR, verbose_name=_("template file"))
+        upload_to=TEMPLATES_DIR, blank=True, verbose_name=_("template file"),
+        help_text=_(
+            "Leave blank to use mailing/{key}.html "
+            "from within your template directories."
+        ))
 
     def __str__(self):
         return self.key
+
+    def get_template(self):
+        if self.template_file:
+            with open(self.template_file.path, 'r') as f:
+                template = Template(f.read())
+        else:
+            template = get_template('mailing/{key}.html'.format(key=self.key))
+        return template
 
 
 class CampaignMailHeader(AbstractBaseMailHeader):
