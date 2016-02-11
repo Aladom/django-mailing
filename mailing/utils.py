@@ -58,9 +58,14 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
         html_template = Template(html_template)
 
     headers.setdefault('From', settings.DEFAULT_FROM_EMAIL)
+    campaign = kwargs.get('campaign', None)
 
     subject = Template(subject).render(context)
-    context.update({'mailing': {'subject': subject}})
+
+    mailing_ctx = {'subject': subject}
+    if campaign:
+        mailing_ctx['campaign'] = campaign.name
+    context.update({'mailing': mailing_ctx})
 
     html_body = html_template.render(context)
 
@@ -73,8 +78,8 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
 
     rendered_headers = dict((name, Template(value).render(context))
                             for name, value in headers.items())
-
-    context.update({'mailing': {'headers': rendered_headers}})
+    mailing_ctx['headers'] = rendered_headers
+    context.update({'mailing': mailing_ctx})
 
     mail = Mail(subject=subject, html_body=html_body, text_body=text_body)
     if 'campaign' in kwargs:
@@ -99,7 +104,6 @@ def render_campaign_mail(campaign, context={}, **kwargs):
     headers = dict(campaign.extra_headers.items())
     headers.update(kwargs.pop('extra_headers', {}))
     kwargs['campaign'] = campaign
-    context.update({'mailing': {'campaign': campaign.name}})
     return render_mail(subject, html_template, headers, context, **kwargs)
 
 
