@@ -146,7 +146,8 @@ def queue_mail(campaign_key=None, context={}, extra_headers={}, **kwargs):
                 raise e
         if not campaign.is_enabled:
             return None
-        mail = render_campaign_mail(campaign, context, extra_headers, **kwargs)
+        kwargs['extra_headers'] = extra_headers
+        mail = render_campaign_mail(campaign, context, **kwargs)
     mail.status = Mail.STATUS_PENDING
     mail.save()
     return mail
