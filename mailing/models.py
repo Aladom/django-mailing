@@ -105,6 +105,12 @@ class Campaign(models.Model):
             template = get_template('mailing/{key}.html'.format(key=self.key))
         return template
 
+    def get_subject(self):
+        if self.prefix_subject and SUBJECT_PREFIX:
+            return '{} {}'.format(SUBJECT_PREFIX, self.subject)
+        else:
+            return self.subject
+
 
 class CampaignMailHeader(AbstractBaseMailHeader):
 

@@ -9,7 +9,7 @@ from django.template import Template, Context
 from django.utils import timezone
 from django.utils.html import strip_tags
 
-from .conf import SUBJECT_PREFIX, UNEXISTING_CAMPAIGN_FAIL_SILENTLY
+from .conf import UNEXISTING_CAMPAIGN_FAIL_SILENTLY
 from .models import Mail, Campaign
 
 
@@ -23,61 +23,100 @@ script_tags_regex = re.compile('<script.*>.*</script>', re.I | re.S)
 
 def html_to_text(html):
     """Strip scripts and HTML tags."""
-    # TODO keep href attribute of <a> tags.
+    # TODO keep href attribute of <a> tags. (Cf. issue #1)
     text = script_tags_regex.sub('', html)
     text = strip_tags(text)
     return text
 
 
-def render_mail(campaign, context={}, extra_headers={}):
-    """Create and return a Mail instance from a Campaign and given context.
-    May raise IOError or OSError if reading the template file failed. It's up
-    to you to catch these exceptions and handle them properly.
+def render_mail(subject, html_template, headers, context={}, **kwargs):
+    """Create and return a Mail instance.
+
+    - `subject`: The subject of the mail, may contain template variables.
+    - `html_template`: The template of the HTML body. May be a Template
+      instance or a string.
+    - `headers`: A dictionary of mail headers. Values may contain template
+      variables. You must at least set the 'To' header. If you don't set the
+      'From' header, DEFAULT_FROM_EMAIL from your settings.py will be used.
+    - `context`: Context to pass when rendering templates. May be a Context
+      instance or a dictionary.
+
+    You can also pass the following extra keyword arguments:
+
+        - `text_template`: The template of the plain text body. May be a
+          Template instance or a string. If you don't set it, it will be
+          automatically generated from the HTML when the mail will be sent.
+        - `campaign`: The Campaign instance of the mail if any.
+        - `scheduled_on`: A `datetime.datetime` instance representing the date
+          when the mail must be sent.
     """
+    if 'To' not in headers:
+        raise ValueError("You must set the 'To' header.")
     if not isinstance(context, Context):
         context = Context(context)
+    if not isinstance(html_template, Template):
+        html_template = Template(html_template)
 
-    subject = Template(campaign.subject).render(context)
+    headers.setdefault('From', settings.DEFAULT_FROM_EMAIL)
 
-    mailing_ctx = {
-        'subject': subject,
-        'campaign': campaign.name,
-    }
+    subject = Template(subject).render(context)
+    context.update({'mailing': {'subject': subject}})
 
-    context.update({'mailing': mailing_ctx})
+    html_body = html_template.render(context)
 
-    if campaign.prefix_subject and SUBJECT_PREFIX:
-        subject = '{} {}'.format(SUBJECT_PREFIX, subject)
+    text_body = ""
+    if 'text_template' in kwargs:
+        text_template = kwargs['text_template']
+        if not isinstance(text_template, Template):
+            text_template = Template(text_template)
+        text_body = text_template.render(context)
 
-    html_body = campaign.get_template().render(context)
+    rendered_headers = dict((name, Template(value).render(context))
+                            for name, value in headers.items())
 
-    headers = {}
-    for name, value in campaign.extra_headers.items():
-        headers[name] = Template(value).render(context)
-    for name, value in extra_headers.items():
-        headers[name] = Template(value).render(context)
+    context.update({'mailing': {'headers': rendered_headers}})
 
-    mailing_ctx['headers'] = headers
-    context.update({'mailing': mailing_ctx})
-
-    mail = Mail(campaign=campaign, subject=subject, html_body=html_body)
+    mail = Mail(subject=subject, html_body=html_body, text_body=text_body)
+    if 'campaign' in kwargs:
+        mail.campaign = kwargs['campaign']
+    if 'scheduled_on' in kwargs:
+        mail.scheduled_on = kwargs['scheduled_on']
     mail.save()
 
-    for name, value in headers.items():
+    for name, value in rendered_headers.items():
         mail.headers.create(name=name, value=value)
 
     return mail
 
 
-def queue_mail(campaign_key, context={}, extra_headers={}, fail_silently=None):
+def render_campaign_mail(campaign, context={}, **kwargs):
+    """Create and return a Mail instance from a Campaign and given context.
+    May raise IOError or OSError if reading the template file failed. It's up
+    to you to catch these exceptions and handle them properly.
+    """
+    subject = kwargs.pop('subject', campaign.get_subject())
+    html_template = kwargs.pop('html_template', campaign.get_template())
+    headers = dict(campaign.extra_headers.items())
+    headers.update(kwargs.pop('extra_headers', {}))
+    kwargs['campaign'] = campaign
+    context.update({'mailing': {'campaign': campaign.name}})
+    return render_mail(subject, html_template, headers, context, **kwargs)
+
+
+def queue_mail(campaign_key=None, context={}, extra_headers={}, **kwargs):
     """Create and save a Mail instance from a Campaign and given context.
+
+    You may omit `campaign_key` (or set it to None) to send a mail that not
+    realted to any campaign. In this case, you must set `subject` and
+    `html_template` keyword arguments or it will raise a KeyError. Please also
+    think about filling in the 'To' header in `extra_headers`.
 
     If fail_silently is True and the requested campaign does not exist, emit a
     warning and return None.
     If fail_silently is False and the requested campaign does not exist, raise
     Campaign.DoesNotExist.
-    If fail_silently is not passed (or None), the default value will be
-    retrived from the app config (See conf.UNEXISTING_CAMPAIGN_FAIL_SILENTLY).
+    If fail_silently is not passed, the default value will be retrieved from
+    the app config (See conf.UNEXISTING_CAMPAIGN_FAIL_SILENTLY).
 
     If the campaign is not enabled, the mail is not queued and None is
     returned. (See Campaign.is_enabled).
@@ -87,21 +126,27 @@ def queue_mail(campaign_key, context={}, extra_headers={}, fail_silently=None):
 
     Return the saved Mail instance.
     """
-    if fail_silently is None:
-        fail_silently = UNEXISTING_CAMPAIGN_FAIL_SILENTLY
-    try:
-        campaign = Campaign.objects.get(key=campaign_key)
-    except Campaign.DoesNotExist as e:
-        if fail_silently:
-            warnings.warn(
-                ("Skip sending campaign '{}' because it "
-                 "does not exist.").format(campaign_key))
+    fail_silently = kwargs.pop('fail_silently',
+                               UNEXISTING_CAMPAIGN_FAIL_SILENTLY)
+    if campaign_key is None:
+        subject = kwargs.pop('subject')
+        html_template = kwargs.pop('html_template')
+        mail = render_mail(subject, html_template, extra_headers, context,
+                           **kwargs)
+    else:
+        try:
+            campaign = Campaign.objects.get(key=campaign_key)
+        except Campaign.DoesNotExist as e:
+            if fail_silently:
+                warnings.warn(
+                    ("Skip sending campaign '{}' because it "
+                     "does not exist.").format(campaign_key))
+                return None
+            else:
+                raise e
+        if not campaign.is_enabled:
             return None
-        else:
-            raise e
-    if not campaign.is_enabled:
-        return None
-    mail = render_mail(campaign, context, extra_headers)
+        mail = render_campaign_mail(campaign, context, extra_headers, **kwargs)
     mail.status = Mail.STATUS_PENDING
     mail.save()
     return mail
