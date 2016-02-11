@@ -29,11 +29,15 @@ class TagNode(Node):
 
     def render(self, context):
         content = self.nodelist.render(context)
-        self.extra_context['tag_name'] = self.tag_name
-        self.extra_context['content'] = content
-        template_context = Context(self.extra_context)
         template = self.get_template()
-        return template.render(template_context)
+        template_context = Context({
+            'tag_name': self.tag_name,
+            'content': content,
+        })
+        values = dict((key, val.resolve(context)) for key, val in
+                      self.extra_context.items())
+        with template_context.push(**values):
+            return template.render(template_context)
 
 
 @register.tag(name="tag")
@@ -61,14 +65,14 @@ def make_tag(parser, token):
             raise TemplateSyntaxError(
                 "The '{}' option was specified more than once.".format(option))
         if option == 'with':
-            value = token_kwargs(remaining_bits, parser, support_legacy=True)
+            value = token_kwargs(remaining_bits, parser)
             if not value:
                 raise TemplateSyntaxError(
-                    "'with' in {} tag needs at least one "
+                    "'with' in '{}' tag needs at least one "
                     "keyword argument.".format(tokens[0]))
         else:
             raise TemplateSyntaxError(
-                "Unknown argument for {} tag: {}".format(tokens[0], option))
+                "Unknown argument for '{}' tag: {}".format(tokens[0], option))
         options[option] = value
 
     extra_context = options.get('with', {})
