@@ -23,7 +23,7 @@ script_tags_regex = re.compile('<script.*>.*</script>', re.I | re.S)
 
 def html_to_text(html):
     """Strip scripts and HTML tags."""
-    # TODO keep href attribute of <a> tags. (Cf. issue #1)
+    # TODO keep href attribute of <a> tags. (See #1)
     text = script_tags_regex.sub('', html)
     text = strip_tags(text)
     return text
@@ -54,7 +54,8 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
         raise ValueError("You must set the 'To' header.")
     if not isinstance(context, Context):
         context = Context(context)
-    if not isinstance(html_template, Template):
+    if not hasattr(html_template, 'render'):
+        # Check Template instance (see #10)
         html_template = Template(html_template)
 
     headers.setdefault('From', settings.DEFAULT_FROM_EMAIL)
