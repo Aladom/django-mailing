@@ -18,7 +18,7 @@ __all__ = [
 ]
 
 
-script_tags_regex = re.compile('<script.*>.*</script>', re.I | re.S)
+script_tags_regex = re.compile(r'<script(\s.*)?>.*</script>', re.I | re.S)
 
 
 def AutoescapeTemplate(value):
@@ -26,8 +26,12 @@ def AutoescapeTemplate(value):
 
 
 def html_to_text(html):
-    """Strip scripts and HTML tags."""
+    """Convert an HTML content to readable plain text content.
+    - Remove <script></script> contents
+    - Remove HTML tags
+    """
     # TODO keep href attribute of <a> tags. (See #1)
+    # TODO keep alt attribute of <img> tags. (See #1)
     text = script_tags_regex.sub('', html)
     text = strip_tags(text)
     return text
