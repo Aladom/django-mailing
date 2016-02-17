@@ -21,6 +21,10 @@ __all__ = [
 script_tags_regex = re.compile('<script.*>.*</script>', re.I | re.S)
 
 
+def AutoescapeTemplate(value):
+    return Template('{% autoescape off %}{}{% endautoescape %}'.format(value))
+
+
 def html_to_text(html):
     """Strip scripts and HTML tags."""
     # TODO keep href attribute of <a> tags. (Cf. issue #1)
@@ -60,7 +64,7 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
     headers.setdefault('From', settings.DEFAULT_FROM_EMAIL)
     campaign = kwargs.get('campaign', None)
 
-    subject = Template(subject).render(context)
+    subject = AutoescapeTemplate(subject).render(context)
 
     mailing_ctx = {'subject': subject}
     if campaign:
@@ -73,10 +77,10 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
     if 'text_template' in kwargs:
         text_template = kwargs['text_template']
         if not isinstance(text_template, Template):
-            text_template = Template(text_template)
+            text_template = AutoescapeTemplate(text_template)
         text_body = text_template.render(context)
 
-    rendered_headers = dict((name, Template(value).render(context))
+    rendered_headers = dict((name, AutoescapeTemplate(value).render(context))
                             for name, value in headers.items())
     mailing_ctx['headers'] = rendered_headers
     context.update({'mailing': mailing_ctx})
