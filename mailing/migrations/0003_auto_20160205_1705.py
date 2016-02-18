@@ -3,7 +3,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
-import mailing.models
+import mailing.models.fields
 
 
 class Migration(migrations.Migration):
@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='campaign',
             name='prefix_subject',
-            field=mailing.models.VariableHelpTextBooleanField(default=True, verbose_name='prefix subject'),
+            field=mailing.models.fields.VariableHelpTextBooleanField(default=True, verbose_name='prefix subject'),
         ),
     ]

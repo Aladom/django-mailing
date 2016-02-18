@@ -5,6 +5,8 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 
+from ..conf import ATTACHMENTS_DIR, ATTACHMENTS_UPLOAD_DIR
+
 
 class Migration(migrations.Migration):
 
@@ -19,7 +21,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('filename', models.CharField(blank=True, max_length=100, verbose_name='filename')),
                 ('mime_type', models.CharField(blank=True, max_length=100, verbose_name='mime type')),
-                ('attachment', models.FilePathField(path='/home/antoine/Workspace/django-mailing/static/mailing/attachments', recursive=True, verbose_name='file')),
+                ('attachment', models.FilePathField(path=ATTACHMENTS_DIR, recursive=True, verbose_name='file')),
                 ('campaign', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='static_attachments', to='mailing.Campaign')),
             ],
             options={
@@ -34,7 +36,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('filename', models.CharField(blank=True, max_length=100, verbose_name='filename')),
                 ('mime_type', models.CharField(blank=True, max_length=100, verbose_name='mime type')),
-                ('attachment', models.FileField(upload_to='mailing/attachments', verbose_name='file')),
+                ('attachment', models.FileField(upload_to=ATTACHMENTS_UPLOAD_DIR, verbose_name='file')),
                 ('mail', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='dynamic_attachments', to='mailing.Mail')),
             ],
             options={
@@ -49,7 +51,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('filename', models.CharField(blank=True, max_length=100, verbose_name='filename')),
                 ('mime_type', models.CharField(blank=True, max_length=100, verbose_name='mime type')),
-                ('attachment', models.FilePathField(path='/home/antoine/Workspace/django-mailing/static/mailing/attachments', recursive=True, verbose_name='file')),
+                ('attachment', models.FilePathField(path=ATTACHMENTS_DIR, recursive=True, verbose_name='file')),
                 ('mail', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='static_attachments', to='mailing.Mail')),
             ],
             options={

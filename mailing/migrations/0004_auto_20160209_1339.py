@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='campaign',
             name='template_file',
-            field=models.FileField(blank=True, help_text='Leave blank to use mailing/{key}.html from within your template directories.', upload_to='mailing/templates', verbose_name='template file'),
+            field=models.FileField(blank=True, help_text='Leave blank to use mailing/{key}.html from within your template directories.', upload_to=TEMPLATES_UPLOAD_DIR, verbose_name='template file'),
         ),
     ]
