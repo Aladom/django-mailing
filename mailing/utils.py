@@ -12,7 +12,6 @@ from django.utils.html import strip_tags
 from .conf import UNEXISTING_CAMPAIGN_FAIL_SILENTLY
 from .models import Mail, Campaign
 
-
 __all__ = [
     'render_mail', 'queue_mail', 'send_mail', 'html_to_text',
 ]
@@ -100,6 +99,15 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
     for name, value in rendered_headers.items():
         mail.headers.create(name=name, value=value)
 
+    for attachments in ['static_attachments', 'dynamic_attachments']:
+        """Handle both static and dynamic attachments with the same logic."""
+        for attachment in kwargs.get(attachments, []):
+            mail_attachments = getattr(mail, attachments)
+            if isinstance(attachment, dict):
+                mail_attachments.create(**attachment)
+            else:
+                mail_attachments.create(attachment=attachment)
+
     return mail
 
 
@@ -112,7 +120,15 @@ def render_campaign_mail(campaign, context={}, **kwargs):
     html_template = kwargs.pop('html_template', campaign.get_template())
     headers = dict(campaign.extra_headers.items())
     headers.update(kwargs.pop('extra_headers', {}))
+    static_attachments = kwargs.pop('static_attachments', [])
+    for attachment in campaign.static_attachments.all():
+        static_attachments.append({
+            'filename': attachment.filename,
+            'mime_type': attachment.mime_type,
+            'attachment': attachment.attachment
+        })
     kwargs['campaign'] = campaign
+    kwargs['static_attachments'] = static_attachments
     return render_mail(subject, html_template, headers, context, **kwargs)
 
 
@@ -185,6 +201,11 @@ def send_mail(mail):
     msg = EmailMultiAlternatives(subject, text_body, from_email, to_emails,
                                  headers=headers)
     msg.attach_alternative(html_body, 'text/html')
+
+    for attachment in mail.get_attachments():
+        msg.attach(attachment.filename, attachment.get_file_content(),
+                   attachment.mime_type)
+
     msg.send()
     return msg
 
