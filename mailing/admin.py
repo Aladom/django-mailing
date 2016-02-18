@@ -6,7 +6,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from .conf import pytz_is_available, SUBJECT_PREFIX
 from .forms import CampaignMailHeaderForm, MailHeaderForm
-from .models import Campaign, CampaignMailHeader, Mail, MailHeader
+from .models import (
+    Campaign, CampaignMailHeader, CampaignStaticAttachment,
+    Mail, MailHeader, MailStaticAttachment, MailDynamicAttachment,
+)
 
 
 class CampaignMailHeaderInline(admin.TabularInline):
@@ -19,6 +22,21 @@ class MailHeaderInline(admin.TabularInline):
     model = MailHeader
     extra = 1
     form = MailHeaderForm
+
+
+class CampaignStaticAttachmentInline(admin.TabularInline):
+    model = CampaignStaticAttachment
+    extra = 1
+
+
+class MailStaticAttachmentInline(admin.TabularInline):
+    model = MailStaticAttachment
+    extra = 1
+
+
+class MailDynamicAttachmentInline(admin.TabularInline):
+    model = MailDynamicAttachment
+    extra = 1
 
 
 @admin.register(Campaign)
@@ -38,7 +56,7 @@ class CampaignAdmin(admin.ModelAdmin):
         (_("Campaign properties"), {'fields': properties_fields}),
         (_("Campaign e-mails"), {'fields': emails_fields}),
     ]
-    inlines = [CampaignMailHeaderInline]
+    inlines = [CampaignMailHeaderInline, CampaignStaticAttachmentInline]
 
     def enable(self, request, queryset):
         queryset.update(is_enabled=True)
@@ -72,5 +90,8 @@ class MailAdmin(admin.ModelAdmin):
         ]}),
     ]
 
-    inlines = [MailHeaderInline]
+    inlines = [
+        MailHeaderInline, MailStaticAttachmentInline,
+        MailDynamicAttachmentInline
+    ]
     readonly_fields = ['sent_on', 'failure_reason']

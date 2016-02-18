@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
+import os
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
 
 __all__ = [
-    'TEMPLATES_DIR', 'SUBJECT_PREFIX',
+    'TEMPLATES_UPLOAD_DIR', 'ATTACHMENTS_DIR', 'ATTACHMENTS_UPLOAD_DIR',
+    'SUBJECT_PREFIX',
     'pytz_is_available',
 ]
 
@@ -27,7 +30,7 @@ def get_setting(key, *args):
     return value
 
 
-TEMPLATES_DIR = get_setting('TEMPLATES_DIR', 'mailing/templates')
+TEMPLATES_UPLOAD_DIR = get_setting('TEMPLATES_UPLOAD_DIR', 'mailing/templates')
 """The directory where mail template files will be stored.
 
 This will be passed as `upload_to` argument of Campaign.template_file. This
@@ -38,6 +41,32 @@ See https://docs.djangoproject.com/en/1.9/ref/models/fields/\
 #django.db.models.FileField.upload_to
 
 Defaults to "mailing/templates"
+"""
+
+ATTACHMENTS_DIR = get_setting('ATTACHMENTS_DIR',
+                              os.path.join(settings.STATIC_ROOT,
+                                           'mailing', 'attachments'))
+"""The path where mail static attachments may be found.
+
+This will be passed as `path` argument of
+AbstractBaseStaticAttachment.attachment.
+
+Defaults to "<STATIC_ROOT>/mailing/attachments"
+"""
+
+ATTACHMENTS_UPLOAD_DIR = get_setting('ATTACHMENTS_UPLOAD_DIR',
+                                     'mailing/attachments')
+"""The directory where mail attachments will be stored.
+
+This will be passed as `upload_to` argument of
+AbstractBaseDynamicAttachment.attachment. This means it can either be a
+relative path from MEDIA_ROOT or a callback taking `instance` and
+`filename` as arguments.
+
+See https://docs.djangoproject.com/en/1.9/ref/models/fields/\
+#django.db.models.FileField.upload_to
+
+Defaults to "mailing/attachments"
 """
 
 SUBJECT_PREFIX = get_setting('SUBJECT_PREFIX', None)
@@ -52,7 +81,7 @@ won't be available on Campaign admin.
 UNEXISTING_CAMPAIGN_FAIL_SILENTLY = get_setting(
     'UNEXISTING_CAMPAIGN_FAIL_SILENTLY', True)
 """Set this to False to raise Campaign.DoesNotExist when
-`queue_mail(campaign_key, context)` is called with an unexisting campaign_key.
+`queue_mail(campaign_key, ...)` is called with an unexisting campaign_key.
 
 When set to True, a warning is emitted and the mail is not queued.
 

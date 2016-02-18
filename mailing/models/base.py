@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
-from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.template import Template
 from django.template.loader import get_template
@@ -8,53 +7,17 @@ from django.utils import timezone
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
-from .conf import TEMPLATES_DIR, SUBJECT_PREFIX
-
+from ..conf import TEMPLATES_UPLOAD_DIR, SUBJECT_PREFIX
+from .fields import VariableHelpTextBooleanField
+from .options import (
+    AbstractBaseMailHeader, AbstractBaseStaticAttachment,
+    AbstractBaseDynamicAttachment,
+)
 
 __all__ = [
-    'Campaign', 'Mail', 'MailHeader', 'CampaignMailHeader',
+    'Campaign', 'CampaignMailHeader', 'CampaignStaticAttachment',
+    'Mail', 'MailHeader', 'MailStaticAttachment', 'MailDynamicAttachment',
 ]
-
-
-class VariableHelpTextBooleanField(models.BooleanField):
-    """Fixes an issue with help_text depending on a variable.
-
-    See https://github.com/Aladom/django-mailing/issues/2 for details.
-    """
-
-    def deconstruct(self):
-        name, path, args, kwargs = super().deconstruct()
-        if 'help_text' in kwargs:
-            del kwargs['help_text']
-        return name, path, args, kwargs
-
-
-class MailHeaderManager(models.Manager):
-
-    def items(self):
-        """Return headers as a list of tuples (name, value)."""
-        for header in self.get_queryset():
-            yield header.name, header.value
-
-
-class AbstractBaseMailHeader(models.Model):
-
-    class Meta:
-        abstract = True
-        verbose_name = _("mail header")
-        verbose_name_plural = _("mail headers")
-
-    name = models.SlugField(
-        max_length=70, verbose_name=_("name"))
-    value = models.TextField(
-        verbose_name=_("value"), validators=[
-            MaxLengthValidator(998),
-        ])
-
-    objects = MailHeaderManager()
-
-    def __str__(self):
-        return '{}: {}'.format(self.name, self.value)
 
 
 class Campaign(models.Model):
@@ -88,7 +51,8 @@ class Campaign(models.Model):
             "some campaigns temporarily without changing the source code."
         ))
     template_file = models.FileField(
-        upload_to=TEMPLATES_DIR, blank=True, verbose_name=_("template file"),
+        upload_to=TEMPLATES_UPLOAD_DIR, blank=True,
+        verbose_name=_("template file"),
         help_text=_(
             "Leave blank to use mailing/{key}.html "
             "from within your template directories."
@@ -120,6 +84,12 @@ class CampaignMailHeader(AbstractBaseMailHeader):
 
     campaign = models.ForeignKey(
         'Campaign', models.CASCADE, related_name='extra_headers')
+
+
+class CampaignStaticAttachment(AbstractBaseStaticAttachment):
+
+    campaign = models.ForeignKey(
+        'Campaign', models.CASCADE, related_name='static_attachments')
 
 
 class Mail(models.Model):
@@ -176,4 +146,14 @@ class MailHeader(AbstractBaseMailHeader):
     mail = models.ForeignKey(
         'Mail', models.CASCADE, related_name='headers')
 
-    objects = MailHeaderManager()
+
+class MailStaticAttachment(AbstractBaseStaticAttachment):
+
+    mail = models.ForeignKey(
+        'Mail', models.CASCADE, related_name='static_attachments')
+
+
+class MailDynamicAttachment(AbstractBaseDynamicAttachment):
+
+    mail = models.ForeignKey(
+        'Mail', models.CASCADE, related_name='dynamic_attachments')
