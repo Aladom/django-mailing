@@ -8,5 +8,4 @@
 /tmp/
 /.sass-cache/
 
-/django_mailing/
 db.sqlite3

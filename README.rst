@@ -4,6 +4,8 @@ Django Mailing
 
 Mailing app for django
 
+!!! This app is not ready for production. !!!
+
 Quick start
 -----------
 
