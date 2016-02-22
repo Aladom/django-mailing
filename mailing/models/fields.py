@@ -12,6 +12,7 @@ class VariableHelpTextBooleanField(BooleanField):
 
     See https://github.com/Aladom/django-mailing/issues/2 for details.
     """
+    # FIXME DEPRECATED: remove when squashing migrations
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()

@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
+from datetime import datetime
+import os
+
 from django.db import models
 from django.template import Template
 from django.template.loader import get_template
 from django.utils import timezone
-from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _
 
-from ..conf import TEMPLATES_UPLOAD_DIR, SUBJECT_PREFIX
-from .fields import VariableHelpTextBooleanField
+from ..conf import StringConfRef, TEMPLATES_UPLOAD_DIR, SUBJECT_PREFIX
 from .options import (
     AbstractBaseMailHeader, AbstractBaseStaticAttachment,
     AbstractBaseDynamicAttachment,
@@ -18,6 +19,14 @@ __all__ = [
     'Campaign', 'CampaignMailHeader', 'CampaignStaticAttachment',
     'Mail', 'MailHeader', 'MailStaticAttachment', 'MailDynamicAttachment',
 ]
+
+
+def templates_upload_to(instance, filename):
+    if callable(TEMPLATES_UPLOAD_DIR):
+        return TEMPLATES_UPLOAD_DIR(instance, filename)
+    else:
+        return os.path.join(format(datetime.now(), TEMPLATES_UPLOAD_DIR),
+                            filename)
 
 
 class Campaign(models.Model):
@@ -38,11 +47,11 @@ class Campaign(models.Model):
     subject = models.CharField(
         max_length=255, verbose_name=_("e-mail subject"),
         help_text=_("May contain template variables."))
-    prefix_subject = VariableHelpTextBooleanField(
+    prefix_subject = models.BooleanField(
         default=True, verbose_name=_("prefix subject"),
-        help_text=lazy(lambda: _(
+        help_text=StringConfRef('SUBJECT_PREFIX', within=_(
             "Wheter to prefix the subject with \"{}\" or not."
-        ).format(SUBJECT_PREFIX), str)())
+        )))
     is_enabled = models.BooleanField(
         default=True, verbose_name=_("enabled"),
         help_text=_(
@@ -51,7 +60,7 @@ class Campaign(models.Model):
             "some campaigns temporarily without changing the source code."
         ))
     template_file = models.FileField(
-        upload_to=TEMPLATES_UPLOAD_DIR, blank=True,
+        upload_to=templates_upload_to, blank=True,
         verbose_name=_("template file"),
         help_text=_(
             "Leave blank to use mailing/{key}.html "

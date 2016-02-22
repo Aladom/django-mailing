@@ -4,12 +4,12 @@ import os
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-
+from django.utils.deconstruct import deconstructible
 
 __all__ = [
     'TEMPLATES_UPLOAD_DIR', 'ATTACHMENTS_DIR', 'ATTACHMENTS_UPLOAD_DIR',
     'SUBJECT_PREFIX',
-    'pytz_is_available',
+    'StringConfRef', 'pytz_is_available',
 ]
 
 
@@ -87,6 +87,21 @@ When set to True, a warning is emitted and the mail is not queued.
 
 Defaults to True.
 """
+
+
+@deconstructible
+class StringConfRef(object):
+
+    def __init__(self, name, within=None):
+        self.name = name
+        self.within = within
+
+    def __str__(self):
+        val = vars()[self.name]
+        if self.within:
+            return self.within.format(val)
+        else:
+            return val
 
 
 try:

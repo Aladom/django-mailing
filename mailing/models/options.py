@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
+from datetime import datetime
 import mimetypes
 import os
 
 from django.core.validators import MaxLengthValidator
 from django.core.mail.message import DEFAULT_ATTACHMENT_MIME_TYPE
 from django.db import models
-from django.utils.translation import ugettext_lazy as __
+from django.utils.translation import ugettext_lazy as _
 
-from ..conf import ATTACHMENTS_DIR, ATTACHMENTS_UPLOAD_DIR
+from ..conf import StringConfRef, ATTACHMENTS_UPLOAD_DIR
 from .manager import MailHeaderManager
 
 __all__ = [
@@ -17,17 +18,25 @@ __all__ = [
 ]
 
 
+def attachments_upload_to(instance, filename):
+    if callable(ATTACHMENTS_UPLOAD_DIR):
+        return ATTACHMENTS_UPLOAD_DIR(instance, filename)
+    else:
+        return os.path.join(format(datetime.now(), ATTACHMENTS_UPLOAD_DIR),
+                            filename)
+
+
 class AbstractBaseMailHeader(models.Model):
 
     class Meta:
         abstract = True
-        verbose_name = __("mail header")
-        verbose_name_plural = __("mail headers")
+        verbose_name = _("mail header")
+        verbose_name_plural = _("mail headers")
 
     name = models.SlugField(
-        max_length=70, verbose_name=__("name"))
+        max_length=70, verbose_name=_("name"))
     value = models.TextField(
-        verbose_name=__("value"), validators=[
+        verbose_name=_("value"), validators=[
             MaxLengthValidator(998),
         ])
 
@@ -41,14 +50,14 @@ class AbstractBaseAttachment(models.Model):
 
     class Meta:
         abstract = True
-        verbose_name = __("attachment")
-        verbose_name_plural = __("attachments")
+        verbose_name = _("attachment")
+        verbose_name_plural = _("attachments")
 
     filename = models.CharField(
-        max_length=100, verbose_name=__("filename"),
+        max_length=100, verbose_name=_("filename"),
         blank=True)
     mime_type = models.CharField(
-        max_length=100, verbose_name=__("mime type"),
+        max_length=100, verbose_name=_("mime type"),
         blank=True)
 
     @property
@@ -69,10 +78,10 @@ class AbstractBaseAttachment(models.Model):
         if not filename:
             filename = os.path.basename(path)
         if not mime_type:
-            mime_type, _ = mimetypes.guess_type(filename)
+            mime_type = mimetypes.guess_type(filename)[0]
             if not mime_type:
                 mime_type = DEFAULT_ATTACHMENT_MIME_TYPE
-        basetype, _ = mime_type.split('/', 1)
+        basetype = mime_type.split('/', 1)[0]
         read_mode = 'r' if basetype == 'text' else 'rb'
         content = None
 
@@ -96,11 +105,12 @@ class AbstractBaseStaticAttachment(AbstractBaseAttachment):
 
     class Meta:
         abstract = True
-        verbose_name = __("static attachment")
-        verbose_name_plural = __("static attachments")
+        verbose_name = _("static attachment")
+        verbose_name_plural = _("static attachments")
 
     attachment = models.FilePathField(
-        path=ATTACHMENTS_DIR, recursive=True, verbose_name=__("file"))
+        path=StringConfRef('ATTACHMENTS_DIR'), recursive=True,
+        verbose_name=_("file"))
 
     def get_file_path(self):
         return self.attachment
@@ -110,11 +120,11 @@ class AbstractBaseDynamicAttachment(AbstractBaseAttachment):
 
     class Meta:
         abstract = True
-        verbose_name = __("dynamic attachment")
-        verbose_name_plural = __("dynamic attachments")
+        verbose_name = _("dynamic attachment")
+        verbose_name_plural = _("dynamic attachments")
 
     attachment = models.FileField(
-        upload_to=ATTACHMENTS_UPLOAD_DIR, verbose_name=__("file"))
+        upload_to=attachments_upload_to, verbose_name=_("file"))
 
     def get_file_path(self):
         return self.attachment.path
