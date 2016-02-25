@@ -60,12 +60,6 @@ class AbstractBaseAttachment(models.Model):
         max_length=100, verbose_name=_("mime type"),
         blank=True)
 
-    @property
-    def attachment(self):
-        raise NotImplementedError(
-            "Subclasses of 'AbstractBaseAttachment' must implement an "
-            "'attachment' attribute.")
-
     def get_file_path(self):
         raise NotImplementedError(
             "Subclasses of 'AbstractBaseAttachment' must implement a "
