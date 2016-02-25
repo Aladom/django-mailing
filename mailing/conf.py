@@ -97,7 +97,7 @@ class StringConfRef(object):
         self.within = within
 
     def __str__(self):
-        val = vars()[self.name]
+        val = globals()[self.name]
         if self.within:
             return self.within.format(val)
         else:
