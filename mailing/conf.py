@@ -9,7 +9,7 @@ from django.utils.deconstruct import deconstructible
 __all__ = [
     'TEMPLATES_UPLOAD_DIR', 'ATTACHMENTS_DIR', 'ATTACHMENTS_UPLOAD_DIR',
     'SUBJECT_PREFIX',
-    'StringConfRef', 'pytz_is_available',
+    'TextConfRef', 'StrConfRef', 'pytz_is_available',
 ]
 
 
@@ -90,18 +90,37 @@ Defaults to True.
 
 
 @deconstructible
-class StringConfRef(object):
+class TextConfRef(object):
 
     def __init__(self, name, within=None):
         self.name = name
         self.within = within
 
     def __str__(self):
-        val = globals()[self.name]
+        value = globals()[self.name]
         if self.within:
-            return self.within.format(val)
-        else:
-            return val
+            value = self.within.format(value)
+        return value
+
+
+class StrConfRef(str):
+
+    def __new__(cls, name, within=None):
+        value = globals()[name]
+        if within:
+            value = within.format(value)
+        self = str.__new__(cls, value)
+        self.name = name
+        self.within = within
+        return self
+
+    def deconstruct(self):
+        return ('{}.{}'.format(__name__, self.__class__.__name__), (self.name,),
+                {'within': self.within})
+
+
+StringConfRef = TextConfRef
+# TODO DEPRECATED: remove when squashing migrations
 
 
 try:

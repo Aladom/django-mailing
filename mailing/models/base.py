@@ -9,7 +9,7 @@ from django.template.loader import get_template
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from ..conf import StringConfRef, TEMPLATES_UPLOAD_DIR, SUBJECT_PREFIX
+from ..conf import TextConfRef, TEMPLATES_UPLOAD_DIR, SUBJECT_PREFIX
 from .options import (
     AbstractBaseMailHeader, AbstractBaseStaticAttachment,
     AbstractBaseDynamicAttachment,
@@ -49,7 +49,7 @@ class Campaign(models.Model):
         help_text=_("May contain template variables."))
     prefix_subject = models.BooleanField(
         default=True, verbose_name=_("prefix subject"),
-        help_text=StringConfRef('SUBJECT_PREFIX', within=_(
+        help_text=TextConfRef('SUBJECT_PREFIX', within=_(
             "Wheter to prefix the subject with \"{}\" or not."
         )))
     is_enabled = models.BooleanField(

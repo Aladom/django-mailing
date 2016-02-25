@@ -9,7 +9,7 @@ from django.core.mail.message import DEFAULT_ATTACHMENT_MIME_TYPE
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from ..conf import StringConfRef, ATTACHMENTS_UPLOAD_DIR
+from ..conf import StrConfRef, ATTACHMENTS_UPLOAD_DIR
 from .manager import MailHeaderManager
 
 __all__ = [
@@ -103,7 +103,7 @@ class AbstractBaseStaticAttachment(AbstractBaseAttachment):
         verbose_name_plural = _("static attachments")
 
     attachment = models.FilePathField(
-        path=StringConfRef('ATTACHMENTS_DIR'), recursive=True,
+        path=StrConfRef('ATTACHMENTS_DIR'), recursive=True,
         verbose_name=_("file"))
 
     def get_file_path(self):
