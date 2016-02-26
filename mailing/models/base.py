@@ -145,6 +145,9 @@ class Mail(models.Model):
     def get_headers(self):
         return dict(self.headers.items())
 
+    def get_attachments(self):
+        return []
+
 
 class MailHeader(AbstractBaseMailHeader):
 
