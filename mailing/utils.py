@@ -21,7 +21,7 @@ script_tags_regex = re.compile(r'<script(\s.*)?>.*</script>', re.I | re.S)
 
 
 def AutoescapeTemplate(value):
-    return Template('{% autoescape off %}{}{% endautoescape %}'.format(value))
+    return Template('{% autoescape off %}' + value + '{% endautoescape %}')
 
 
 def html_to_text(html):
