@@ -5,7 +5,7 @@ import warnings
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from django.template import Template, Context
+from django.template import Template
 from django.utils import timezone
 from django.utils.html import strip_tags
 
@@ -45,8 +45,7 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
     - `headers`: A dictionary of mail headers. Values may contain template
       variables. You must at least set the 'To' header. If you don't set the
       'From' header, DEFAULT_FROM_EMAIL from your settings.py will be used.
-    - `context`: Context to pass when rendering templates. May be a Context
-      instance or a dictionary.
+    - `context`: Context dictionnary to pass when rendering templates.
 
     You can also pass the following extra keyword arguments:
 
@@ -59,8 +58,6 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
     """
     if 'To' not in headers:
         raise ValueError("You must set the 'To' header.")
-    if not isinstance(context, Context):
-        context = Context(context)
     if not hasattr(html_template, 'render'):
         # Check Template instance (see #10)
         html_template = Template(html_template)
