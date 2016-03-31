@@ -2,6 +2,7 @@
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
 from datetime import datetime
 import os
+import re
 
 from django.core.signing import Signer
 from django.core.urlresolvers import reverse
@@ -31,6 +32,55 @@ def templates_upload_to(instance, filename):
     else:
         return os.path.join(format(datetime.now(), TEMPLATES_UPLOAD_DIR),
                             filename)
+
+
+class SubscriptionType(models.Model):
+
+    class Meta:
+        verbose_name = _("subscription type")
+        verbose_name_plural = _("subscription types")
+
+    name = models.CharField(
+        max_length=200, unique=True, verbose_name=_("name"))
+    description = models.TextField(verbose_name=_("description"))
+    subscribed_by_default = models.BooleanField(
+        default=True, verbose_name=_("subscribed by default"),
+        help_text=_(
+            "Whether potential recipients are subscribed or not to "
+            "this type by default"
+        ))
+
+    def __str__(self):
+        return self.name
+
+    def is_subscribed(self, email):
+        match = re.match(r'.*\s<([^<> ]+)>', email)
+        if match:
+            email = match.group(1)
+
+        try:
+            return self.subscriptions.get(email=email).subscribed
+        except Subscription.DoesNotExist:
+            return self.subscribed_by_default
+
+
+class Subscription(models.Model):
+
+    class Meta:
+        verbose_name = _("subscription")
+        verbose_name_plural = _("subscriptions")
+        unique_together = [
+            ('email', 'subscription_type'),
+        ]
+
+    email = models.EmailField(
+        db_index=True, verbose_name=_("e-mail"))
+    subscription_type = models.ForeignKey(
+        SubscriptionType, models.CASCADE,
+        related_name='subscriptions', related_query_name='subscriptions',
+        verbose_name=_("subscription type"))
+    subscribed = models.BooleanField(
+        default=True, verbose_name=_("subscribed"))
 
 
 class Campaign(models.Model):
@@ -70,6 +120,9 @@ class Campaign(models.Model):
             "Leave blank to use mailing/{key}.html "
             "from within your template directories."
         ))
+    subscription_type = models.ForeignKey(
+        SubscriptionType, models.SET_NULL, blank=True, null=True,
+        verbose_name=_("subscription type"))
 
     def __str__(self):
         return self.key
@@ -87,6 +140,11 @@ class Campaign(models.Model):
             return '{} {}'.format(SUBJECT_PREFIX, self.subject)
         else:
             return self.subject
+
+    def is_subscribed(self, email):
+        if not self.subscription_type:
+            return True
+        return self.subscription_type.is_subscribed(email)
 
 
 class CampaignMailHeader(AbstractBaseMailHeader):
