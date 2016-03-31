@@ -142,9 +142,8 @@ class Campaign(models.Model):
             return self.subject
 
     def is_subscribed(self, email):
-        if not self.subscription_type:
-            return True
-        return self.subscription_type.is_subscribed(email)
+        return (not self.subscription_type or
+                self.subscription_type.is_subscribed(email))
 
 
 class CampaignMailHeader(AbstractBaseMailHeader):

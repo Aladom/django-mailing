@@ -9,6 +9,7 @@ from .forms import CampaignMailHeaderForm, MailHeaderForm
 from .models import (
     Campaign, CampaignMailHeader, CampaignStaticAttachment,
     Mail, MailHeader, MailStaticAttachment, MailDynamicAttachment,
+    SubscriptionType, Subscription,
 )
 
 
@@ -42,13 +43,15 @@ class MailDynamicAttachmentInline(admin.TabularInline):
 @admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
 
-    list_display = ['key', 'name', 'subject', 'is_enabled']
+    list_display = [
+        'key', 'name', 'subject', 'subscription_type', 'is_enabled',
+    ]
     list_display_links = ['key', 'name']
-    list_filter = ['is_enabled']
+    list_filter = ['is_enabled', 'subscription_type']
     search_fields = ['key', 'name', 'subject']
     actions = ['enable', 'disable']
 
-    properties_fields = ['key', 'name', 'is_enabled']
+    properties_fields = ['key', 'name', 'subscription_type', 'is_enabled']
     emails_fields = ['subject', 'prefix_subject', 'template_file']
     if SUBJECT_PREFIX is None:
         emails_fields.remove('prefix_subject')
@@ -95,3 +98,23 @@ class MailAdmin(admin.ModelAdmin):
         MailDynamicAttachmentInline
     ]
     readonly_fields = ['sent_on', 'failure_reason']
+
+
+@admin.register(SubscriptionType)
+class SubscriptionTypeAdmin(admin.ModelAdmin):
+
+    list_display = [
+        'name', 'subscribed_by_default',
+    ]
+
+    fields = ['name', 'subscribed_by_default', 'description']
+
+
+@admin.register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+
+    list_display = [
+        'email', 'subscription_type', 'subscribed',
+    ]
+    list_filter = ['subscription_type', 'subscribed']
+    search_fields = ['email']
