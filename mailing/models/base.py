@@ -23,6 +23,7 @@ from .options import (
 __all__ = [
     'Campaign', 'CampaignMailHeader', 'CampaignStaticAttachment',
     'Mail', 'MailHeader', 'MailStaticAttachment', 'MailDynamicAttachment',
+    'SubscriptionType', 'Subscription',
 ]
 
 
