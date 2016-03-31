@@ -67,7 +67,17 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
 
     subject = AutoescapeTemplate(subject).render(context)
 
-    mailing_ctx = {'subject': subject}
+    mail = Mail(subject=subject)
+    if 'campaign' in kwargs:
+        mail.campaign = kwargs['campaign']
+    if 'scheduled_on' in kwargs:
+        mail.scheduled_on = kwargs['scheduled_on']
+    mail.save()
+
+    mailing_ctx = {
+        'subject': subject,
+        'mirror': mail.get_absolute_url(),
+    }
     if campaign:
         mailing_ctx['campaign'] = campaign.name
     context.update({'mailing': mailing_ctx})
@@ -86,11 +96,8 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
     mailing_ctx['headers'] = rendered_headers
     context.update({'mailing': mailing_ctx})
 
-    mail = Mail(subject=subject, html_body=html_body, text_body=text_body)
-    if 'campaign' in kwargs:
-        mail.campaign = kwargs['campaign']
-    if 'scheduled_on' in kwargs:
-        mail.scheduled_on = kwargs['scheduled_on']
+    mail.html_body = html_body
+    mail.text_body = text_body
     mail.save()
 
     for name, value in rendered_headers.items():

@@ -3,13 +3,17 @@
 from datetime import datetime
 import os
 
+from django.core.signing import Signer
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.template import Template
 from django.template.loader import get_template
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from ..conf import TextConfRef, TEMPLATES_UPLOAD_DIR, SUBJECT_PREFIX
+from ..conf import (
+    TextConfRef, TEMPLATES_UPLOAD_DIR, SUBJECT_PREFIX, MIRROR_SIGNING_SALT,
+)
 from .options import (
     AbstractBaseMailHeader, AbstractBaseStaticAttachment,
     AbstractBaseDynamicAttachment,
@@ -112,11 +116,13 @@ class Mail(models.Model):
     STATUS_SENT = 2
     STATUS_CANCELED = 3
     STATUS_FAILURE = 4
+    STATUS_DRAFT = 5
     STATUS_CHOICES = [
         (STATUS_PENDING, _("Pending")),
         (STATUS_SENT, _("Sent")),
         (STATUS_CANCELED, _("Canceled")),
         (STATUS_FAILURE, _("Failure")),
+        (STATUS_DRAFT, _("Draft")),
     ]
 
     campaign = models.ForeignKey(
@@ -147,6 +153,11 @@ class Mail(models.Model):
 
     def get_attachments(self):
         return []
+
+    def get_absolute_url(self):
+        signer = Signer(salt=MIRROR_SIGNING_SALT)
+        signed_pk = signer.sign(str(self.pk))
+        return reverse('mailing:mirror', kwargs={'signed_pk': signed_pk})
 
 
 class MailHeader(AbstractBaseMailHeader):

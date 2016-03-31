@@ -88,6 +88,9 @@ When set to True, a warning is emitted and the mail is not queued.
 Defaults to True.
 """
 
+MIRROR_SIGNING_SALT = get_setting(
+    'MIRROR_SIGNING_SALT', "Django Mailing says it is the mail ID")
+
 
 @deconstructible
 class TextConfRef(object):
@@ -115,8 +118,8 @@ class StrConfRef(str):
         return self
 
     def deconstruct(self):
-        return ('{}.{}'.format(__name__, self.__class__.__name__), (self.name,),
-                {'within': self.within})
+        return ('{}.{}'.format(__name__, self.__class__.__name__),
+                (self.name,), {'within': self.within})
 
 
 StringConfRef = TextConfRef
