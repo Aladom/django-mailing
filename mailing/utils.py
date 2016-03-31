@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
+import logging
 import re
 import warnings
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+from django.db import transaction
 from django.template import Template
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -13,11 +15,16 @@ from .conf import UNEXISTING_CAMPAIGN_FAIL_SILENTLY
 from .models import Mail, Campaign
 
 __all__ = [
-    'render_mail', 'queue_mail', 'send_mail', 'html_to_text',
+    'render_mail', 'queue_mail', 'send_mail', 'html_to_text', 'mail_logger',
 ]
 
+mail_logger = logging.getLogger('mailing.mail')
 
 script_tags_regex = re.compile(r'<script(\s.*)?>.*</script>', re.I | re.S)
+
+
+class NoMoreRecipients(ValueError):
+    pass
 
 
 def AutoescapeTemplate(value):
@@ -36,6 +43,7 @@ def html_to_text(html):
     return text
 
 
+@transaction.atomic
 def render_mail(subject, html_template, headers, context={}, **kwargs):
     """Create and return a Mail instance.
 
@@ -82,6 +90,22 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
         mailing_ctx['campaign'] = campaign.name
     context.update({'mailing': mailing_ctx})
 
+    rendered_headers = dict((name, AutoescapeTemplate(value).render(context))
+                            for name, value in headers.items())
+
+    if campaign:
+        actual_to = []
+        for email in rendered_headers['To'].split(','):
+            email = email.strip()
+            if campaign.is_subscribed(email):
+                actual_to.append(email)
+        if not actual_to:
+            raise NoMoreRecipients
+        rendered_headers['To'] = ', '.join(actual_to)
+
+    mailing_ctx['headers'] = rendered_headers
+    context.update({'mailing': mailing_ctx})
+
     html_body = html_template.render(context)
 
     text_body = ""
@@ -91,14 +115,8 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
             text_template = AutoescapeTemplate(text_template)
         text_body = text_template.render(context)
 
-    rendered_headers = dict((name, AutoescapeTemplate(value).render(context))
-                            for name, value in headers.items())
-    mailing_ctx['headers'] = rendered_headers
-    context.update({'mailing': mailing_ctx})
-
     mail.html_body = html_body
     mail.text_body = text_body
-    mail.status = Mail.STATUS_PENDING
     mail.save()
 
     for name, value in rendered_headers.items():
@@ -162,26 +180,31 @@ def queue_mail(campaign_key=None, context={}, extra_headers={}, **kwargs):
     """
     fail_silently = kwargs.pop('fail_silently',
                                UNEXISTING_CAMPAIGN_FAIL_SILENTLY)
-    if campaign_key is None:
-        subject = kwargs.pop('subject')
-        html_template = kwargs.pop('html_template')
-        mail = render_mail(subject, html_template, extra_headers, context,
-                           **kwargs)
-    else:
-        try:
-            campaign = Campaign.objects.get(key=campaign_key)
-        except Campaign.DoesNotExist as e:
-            if fail_silently:
-                warnings.warn(
-                    ("Skip sending campaign '{}' because it "
-                     "does not exist.").format(campaign_key))
+    try:
+        if campaign_key is None:
+            subject = kwargs.pop('subject')
+            html_template = kwargs.pop('html_template')
+            mail = render_mail(subject, html_template, extra_headers, context,
+                               **kwargs)
+        else:
+            try:
+                campaign = Campaign.objects.get(key=campaign_key)
+            except Campaign.DoesNotExist as e:
+                if fail_silently:
+                    warnings.warn(
+                        ("Skip sending campaign '{}' because it "
+                         "does not exist.").format(campaign_key))
+                    return None
+                else:
+                    raise e
+            if not campaign.is_enabled:
                 return None
-            else:
-                raise e
-        if not campaign.is_enabled:
-            return None
-        kwargs['extra_headers'] = extra_headers
-        mail = render_campaign_mail(campaign, context, **kwargs)
+            kwargs['extra_headers'] = extra_headers
+            mail = render_campaign_mail(campaign, context, **kwargs)
+    except NoMoreRecipients as e:
+        mail_logger.debug(
+            "Email not queued because of empty recipients list.", exc_info=e)
+        return None
     mail.status = Mail.STATUS_PENDING
     mail.save()
     return mail
