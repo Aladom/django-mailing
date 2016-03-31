@@ -129,7 +129,7 @@ class Mail(models.Model):
         'Campaign', models.SET_NULL, blank=True, null=True,
         verbose_name=_("campaign"))
     status = models.PositiveSmallIntegerField(
-        choices=STATUS_CHOICES, default=STATUS_PENDING,
+        choices=STATUS_CHOICES, default=STATUS_DRAFT,
         verbose_name=_("status"))
     scheduled_on = models.DateTimeField(
         default=timezone.now, verbose_name=_("scheduled on"))

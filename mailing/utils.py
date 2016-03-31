@@ -67,7 +67,7 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
 
     subject = AutoescapeTemplate(subject).render(context)
 
-    mail = Mail(subject=subject)
+    mail = Mail(subject=subject, status=Mail.STATUS_DRAFT)
     if 'campaign' in kwargs:
         mail.campaign = kwargs['campaign']
     if 'scheduled_on' in kwargs:
@@ -98,6 +98,7 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
 
     mail.html_body = html_body
     mail.text_body = text_body
+    mail.status = Mail.STATUS_PENDING
     mail.save()
 
     for name, value in rendered_headers.items():
