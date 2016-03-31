@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: django-mailing 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-01 14:22+0100\n"
+"POT-Creation-Date: 2016-03-31 16:20+0000\n"
 "PO-Revision-Date: 2016-02-01 14:26+0100\n"
 "Last-Translator: Antoine Pinsard <antoine.pinsard@aladom.fr>\n"
 "Language-Team: French\n"
@@ -18,31 +18,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: mailing/admin.py:37
+#: mailing/admin.py:59
 msgid "Campaign properties"
 msgstr "Propriétés de la campagne"
 
-#: mailing/admin.py:38
+#: mailing/admin.py:60
 msgid "Campaign e-mails"
 msgstr "E-mails de la campagne"
 
-#: mailing/admin.py:44
+#: mailing/admin.py:66
 msgid "Enable selected e-mail campaigns"
 msgstr "Activer les campagnes d'e-mail sélectionnées"
 
-#: mailing/admin.py:48
+#: mailing/admin.py:70
 msgid "Disable selected e-mail campaigns"
 msgstr "Désactiver les campagnes d'e-mail sélectionnées"
 
-#: mailing/admin.py:63
+#: mailing/admin.py:85
 msgid "Properties"
 msgstr "Propriétés"
 
-#: mailing/admin.py:66
+#: mailing/admin.py:88
 msgid "Status"
 msgstr "Statut"
 
-#: mailing/admin.py:69
+#: mailing/admin.py:91
 msgid "E-mail"
 msgstr "E-mail"
 
@@ -50,60 +50,88 @@ msgstr "E-mail"
 msgid "Mailing"
 msgstr "Mailing"
 
-#: mailing/forms.py:19 mailing/models.py:54
+#: mailing/forms.py:19 mailing/models/base.py:104
 msgid "May contain template variables."
 msgstr "Peut contenir des variables de template."
 
-#: mailing/models.py:23
-msgid "mail header"
-msgstr "header de l'e-mail"
+#: mailing/models/base.py:41 mailing/models/base.py:82
+#: mailing/models/base.py:126
+msgid "subscription type"
+msgstr "type d'abonnement"
 
-#: mailing/models.py:24
-msgid "mail headers"
-msgstr "headers de l'e-mail"
+#: mailing/models/base.py:42
+msgid "subscription types"
+msgstr "types d'abonnement"
 
-#: mailing/models.py:27 mailing/models.py:51
+#: mailing/models/base.py:45 mailing/models/base.py:101
+#: mailing/models/options.py:45
 msgid "name"
 msgstr "nom"
 
-#: mailing/models.py:29
-msgid "value"
-msgstr "valeur"
+#: mailing/models/base.py:46
+msgid "description"
+msgstr "description"
 
-#: mailing/models.py:41
+#: mailing/models/base.py:48
+msgid "subscribed by default"
+msgstr "abonné par défaut"
+
+#: mailing/models/base.py:50
+msgid ""
+"Whether potential recipients are subscribed or not to this type by default"
+msgstr ""
+"Si les potentiels destinataires sont abonnées à ce type par défaut"
+
+#: mailing/models/base.py:71
+msgid "subscription"
+msgstr "abonnement"
+
+#: mailing/models/base.py:72
+msgid "subscriptions"
+msgstr "abonnements"
+
+#: mailing/models/base.py:78 mailing/models/base.py:170
+msgid "e-mail"
+msgstr "e-mail"
+
+#: mailing/models/base.py:84
+msgid "subscribed"
+msgstr "abonné"
+
+#: mailing/models/base.py:91
 msgid "e-mail campaign"
 msgstr "campagne d'e-mail"
 
-#: mailing/models.py:42
+#: mailing/models/base.py:92
 msgid "e-mail campaigns"
 msgstr "campagnes d'e-mail"
 
-#: mailing/models.py:45
+#: mailing/models/base.py:95
 msgid "key"
 msgstr "clé"
 
-#: mailing/models.py:47
+#: mailing/models/base.py:97
 msgid "The key will be used to reference this campaign from your scripts."
 msgstr ""
 "La clé sera utilisée pour référencer cette campagne depuis vos scripts."
 
-#: mailing/models.py:53
+#: mailing/models/base.py:103
 msgid "e-mail subject"
 msgstr "objet de l'e-mail"
 
-#: mailing/models.py:56
+#: mailing/models/base.py:106
 msgid "prefix subject"
 msgstr "préfixer l'objet"
 
-#: mailing/models.py:58
+#: mailing/models/base.py:108
 msgid "Wheter to prefix the subject with \"{}\" or not."
 msgstr "Prefixer l'objet par \"{}\" ou non."
 
-#: mailing/models.py:61
+#: mailing/models/base.py:111
 msgid "enabled"
 msgstr "activé"
 
-#: mailing/models.py:63
+#: mailing/models/base.py:113
 msgid ""
 "E-mails won't be sent for campaigns that are not enabled. Even if a script "
 "requests for sending. This is a way to turn off some campaigns temporarily "
@@ -113,82 +141,138 @@ msgstr ""
 "activées. Même si un script demande l'envoi. Cela sert à désactiver "
 "temporairement certaines campagnes sans modifier le code source."
 
-#: mailing/models.py:68
+#: mailing/models/base.py:119
 msgid "template file"
 msgstr "fichier template"
 
-#: mailing/models.py:77
+#: mailing/models/base.py:121
+#, python-brace-format
+msgid ""
+"Leave blank to use mailing/{key}.html from within your template directories."
+msgstr ""
+"Laisser vide pour utiliser mailing/{key}.html depuis votre répertoire de "
+"templates."
+
+#: mailing/models/base.py:153
 msgid "extra header"
 msgstr "header additionnel"
 
-#: mailing/models.py:78
+#: mailing/models/base.py:154
 msgid "extra headers"
 msgstr "header additionnel"
 
-#: mailing/models.py:88
-msgid "e-mail"
-msgstr "e-mail"
-
-#: mailing/models.py:89
+#: mailing/models/base.py:171
 msgid "e-mails"
 msgstr "e-mails"
 
-#: mailing/models.py:96
+#: mailing/models/base.py:179
 msgid "Pending"
 msgstr "En attente"
 
-#: mailing/models.py:97
+#: mailing/models/base.py:180
 msgid "Sent"
 msgstr "Envoyé"
 
-#: mailing/models.py:98
+#: mailing/models/base.py:181
 msgid "Canceled"
 msgstr "Annulé"
 
-#: mailing/models.py:99
+#: mailing/models/base.py:182
 msgid "Failure"
 msgstr "Échec"
 
-#: mailing/models.py:104
+#: mailing/models/base.py:183
+msgid "Draft"
+msgstr "Brouillon"
+
+#: mailing/models/base.py:188
 msgid "campaign"
 msgstr "campagne"
 
-#: mailing/models.py:107
+#: mailing/models/base.py:191
 msgid "status"
 msgstr "statut"
 
-#: mailing/models.py:109
+#: mailing/models/base.py:193
 msgid "scheduled on"
 msgstr "planifié le"
 
-#: mailing/models.py:111
+#: mailing/models/base.py:195
 msgid "sent on"
 msgstr "envoyé le"
 
-#: mailing/models.py:113
+#: mailing/models/base.py:197
 msgid "subject"
 msgstr "objet"
 
-#: mailing/models.py:115
+#: mailing/models/base.py:199
 msgid "HTML body"
 msgstr "corps HTML"
 
-#: mailing/models.py:117
+#: mailing/models/base.py:201
 msgid "text body"
 msgstr "corps textuel"
 
-#: mailing/models.py:118
+#: mailing/models/base.py:202
 msgid "Leave blank to generate from HTML body."
 msgstr "Laisser vide pour générer à partir du HTML."
 
-#: mailing/models.py:120
+#: mailing/models/base.py:204
 msgid "failure reason"
 msgstr "raison de l'échec"
 
-#: mailing/models.py:132
+#: mailing/models/base.py:224
 msgid "header"
 msgstr "header"
 
-#: mailing/models.py:133
+#: mailing/models/base.py:225
 msgid "headers"
 msgstr "headers"
+
+#: mailing/models/options.py:41
+msgid "mail header"
+msgstr "header de l'e-mail"
+
+#: mailing/models/options.py:42
+msgid "mail headers"
+msgstr "headers de l'e-mail"
+
+#: mailing/models/options.py:47
+msgid "value"
+msgstr "valeur"
+
+#: mailing/models/options.py:61
+msgid "attachment"
+msgstr "pièce jointe"
+
+#: mailing/models/options.py:62
+msgid "attachments"
+msgstr "pièces jointes"
+
+#: mailing/models/options.py:65
+msgid "filename"
+msgstr "nom du fichier"
+
+#: mailing/models/options.py:68
+msgid "mime type"
+msgstr "type MIME"
+
+#: mailing/models/options.py:110
+msgid "static attachment"
+msgstr "pièce jointe statique"
+
+#: mailing/models/options.py:111
+msgid "static attachments"
+msgstr "pièces jointes statiques"
+
+#: mailing/models/options.py:115 mailing/models/options.py:129
+msgid "file"
+msgstr "fichier"
+
+#: mailing/models/options.py:125
+msgid "dynamic attachment"
+msgstr "pièce jointe dynamique"
+
+#: mailing/models/options.py:126
+msgid "dynamic attachments"
+msgstr "pièces jointes dynamiques"
