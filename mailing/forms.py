@@ -49,7 +49,9 @@ class SubscriptionsManagementForm(forms.Form):
 
     def save(self):
         subscriptions = {
-            s.pk: s for s in Subscription.objects.filter(email=self.email)}
+            s.subscription_type_id: s
+            for s in Subscription.objects.filter(email=self.email)
+        }
 
         for field, value in self.cleaned_data.items():
             pk = int(field.split('_')[-1])
