@@ -54,7 +54,7 @@ class SubscriptionsManagementForm(forms.Form):
         for field, value in self.cleaned_data.items():
             pk = int(field.split('_')[-1])
             if pk not in subscriptions:
-                Subscription(email=self.email, subscription_type=pk,
+                Subscription(email=self.email, subscription_type_id=pk,
                              subscribed=value).save()
             elif subscriptions[pk].subscribed != value:
                 subscriptions[pk].subscribed = value

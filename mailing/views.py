@@ -52,3 +52,6 @@ class SubscriptionsManagementView(FormView):
             "E-mail subscriptions saved successfully."
         ))
         return super().form_valid(form)
+
+    def get_success_url(self):
+        return self.request.path

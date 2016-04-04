@@ -13,9 +13,25 @@
       <div class="header">
         <h3 class="text-muted">{% trans "Manage your mailing subscriptions" %}</h3>
       </div>
-      <form method="POST">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+      <form method="POST" class="form">
         {% csrf_token %}
-        {{ form }}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+          <div class="form-group">
+            {{ field.label_tag }} {{ field }}
+            {% if field.errors %}
+              <p class="text-danger">{{ field.errors }}</p>
+            {% endif %}
+            {% if field.help_text %}
+              <p class="text-muted">{{ field.help_text }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
         <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
       </form>
     </div>
