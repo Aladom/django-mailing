@@ -6,12 +6,14 @@ import warnings
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+from django.core.signing import Signer
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.template import Template
 from django.utils import timezone
 from django.utils.html import strip_tags
 
-from .conf import UNEXISTING_CAMPAIGN_FAIL_SILENTLY
+from .conf import UNEXISTING_CAMPAIGN_FAIL_SILENTLY, SUBSCRIPTION_SIGNING_SALT
 from .models import Mail, Campaign
 
 __all__ = [
@@ -273,3 +275,10 @@ def send_queued_mails():
     nb_failures = len(mails) - nb_successes
 
     return nb_successes, nb_failures
+
+
+def get_subscriptions_management_url(email):
+    signer = Signer(salt=SUBSCRIPTION_SIGNING_SALT)
+    signed_email = signer.sign(email)
+    return reverse('mailing:subscriptions',
+                   kwargs={'signed_email': signed_email})

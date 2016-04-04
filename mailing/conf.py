@@ -90,6 +90,17 @@ Defaults to True.
 
 MIRROR_SIGNING_SALT = get_setting(
     'MIRROR_SIGNING_SALT', "Django Mailing says it is the mail ID")
+"""This salt is used for mirror links signing.
+If you change it, all mirror links from e-mails queued formerly will be broken
+and return a 400 Bad Request HTTP status.
+"""
+
+SUBSCRIPTION_SIGNING_SALT = get_setting(
+    'SUBSCRIPTION_SIGNING_SALT', "Django Mailing says it is the e-mail")
+"""This salt is used for subscriptions management links signing.
+If you change it, all subscriptions management links generated formerly will be
+broken and return a 400 Bad Request HTTP status.
+"""
 
 
 @deconstructible
