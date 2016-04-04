@@ -4,4 +4,5 @@ recursive-include mailing/locale *
 recursive-include mailing/management *
 recursive-include mailing/migrations *
 recursive-include mailing/models *
+recursive-include mailing/templates *
 recursive-include mailing/templatetags *

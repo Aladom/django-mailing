@@ -34,7 +34,7 @@ class MailHeaderForm(forms.ModelForm):
 class SubscriptionsManagementForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
-        self.email = kwargs['email']
+        self.email = kwargs.pop('email')
         subscription_types = SubscriptionType.objects.all()
         for subscription_type in subscription_types:
             self.base_fields['subscribed_{}'.format(subscription_type.pk)] = (
