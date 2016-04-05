@@ -56,12 +56,19 @@ Screenshots
 .. _Aladom: http://www.aladom.fr/
 .. _Cocoonr: https://cocoonr.fr/
 
-Contents:
+
+Table of Contents
+-----------------
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Setup
+
+   install
 
 .. toctree::
    :maxdepth: 2
    :caption: Features
-
 
 
 Indices and tables
