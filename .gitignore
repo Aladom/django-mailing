@@ -7,5 +7,6 @@
 /media/
 /tmp/
 /.sass-cache/
+/docs/_build/
 
 db.sqlite3
