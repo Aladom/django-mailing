@@ -42,6 +42,16 @@ Plain text and HTML support
   provide a fallback plain text message. Django Mailing Campaign handles this
   and automatically create an plain text version of your e-mails.
 
+
+Screenshots
+-----------
+
+.. image:: /img/screenshot-campaign-list.png
+
+.. image:: /img/screenshot-campaign-change.png
+
+.. image:: /img/screenshot-mail-list.png
+
 .. _Django: https://www.djangoproject.com/
 .. _Aladom: http://www.aladom.fr/
 .. _Cocoonr: https://cocoonr.fr/
