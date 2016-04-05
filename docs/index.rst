@@ -65,6 +65,7 @@ Table of Contents
    :caption: Setup
 
    install
+   configuration
 
 .. toctree::
    :maxdepth: 2
