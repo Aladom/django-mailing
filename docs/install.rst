@@ -22,4 +22,4 @@ page, add this line to your ``urlpatterns`` in your urls.py::
 
 
 Run your development server, visit http://127.0.0.1:8000/admin/mailing/ and
-start creating campaigns.
+:doc:`get_started`.

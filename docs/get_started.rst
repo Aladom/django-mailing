@@ -44,5 +44,5 @@ Extra headers
   "From" header, but it is often not needed as ``DEFAULT_FROM_EMAIL`` will be
   used as default.
 
-Note that some fields are not described above. These are not important for
-basic use and will be described later.
+.. note:: Some fields are not described above. These are not important for
+   basic use and will be described later.
