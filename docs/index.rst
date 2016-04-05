@@ -58,13 +58,14 @@ Screenshots
 
 
 Table of Contents
------------------
+=================
 
 .. toctree::
    :maxdepth: 2
    :caption: Setup
 
    install
+   get_started
    configuration
 
 .. toctree::
