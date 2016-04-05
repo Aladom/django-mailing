@@ -4,8 +4,6 @@ Django Mailing
 
 Mailing app for django
 
-!!! This app is not ready for production. !!!
-
 Quick start
 -----------
 
@@ -19,4 +17,12 @@ Quick start
 2. Run `python manage.py migrate` to create the mailing models
 
 3. Start the development server and visit http://127.0.0.1:8000/admin/
-   to manage e-mails (you'll ne the Admin app enabled).
+   to manage e-mails (you'll need the Admin app enabled).
+
+
+Get started
+-----------
+
+`Read the docs!`_
+
+.. _`Read the docs!`: http://django-mailing-campaign.readthedocs.org/
