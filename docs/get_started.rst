@@ -1,10 +1,46 @@
 Get started
 ===========
 
+Queue e-mails
+-------------
+
+This is quite an unusual start, however will we start by queuing an e-mail.
+Even though no campaign exist for now, this is usually where you will start.
+
+Say you are implementing user registration and want to send an e-mail to
+welcome him and give him a temporary password. This would give something like
+this:
+
+.. highlight:: python
+
+   from django.contrib.auth import get_user_model
+
+   from mailing.utils import queue_mail
+
+   User = get_user_model()
+   password = User.objects.make_random_password()
+   user = User.objects.create_user(..., password=password)
+
+   queue_mail('user_registration', {
+       'user': user,
+       'password': password,
+   })
+
+``queue_mail()`` will look for a campaign with the key ``user_registration``
+and create a mail instance with the template of this campaign and the context
+you passed as second argument. The mail instance will then be stored in the
+database with the state "pending", which means ready to be sent.
+
+For now, no campaign exist with the key "user_registration". In such case, a
+python warning will be emitted (that you should see in your logs) and no mail
+will be queued. You can override this behavior to raise a
+``Campaign.DoesNotExist`` exception instead of emitting a warning.
+
+
 Create a Campaign
 -----------------
 
-First let's create a campaign. Go to
+Let's create a campaign. Go to
 http://127.0.0.1:8000/admin/mailing/campaign/ and click
 "Add e-mail campaign" button to access the campaign creation form.
 
@@ -53,22 +89,24 @@ Write your mail template
 Now create a folder "mailing" in one of your templates directories and create
 a file "user_registration.html" (or whatever campaign key you chose dot html)
 in this folder. Write your e-mail template as you would write any other
-template::
+template.
 
-    {% extends "mailing/base_layout.html" %}
-    {% load i18n %}
-    {% block content %}
-      <h1>{% trans "Welcome on board" %}</h1>
-      <p>{% blocktrans with name=user.first_name %}Hi {{ name }}, we are very
-      happy to count you among our members.{% endblocktrans %}</p>
-      <p>{% trans "Here are your credentials:" %}</p>
-      <ul>
-        <li><b>{% trans "Username:" %}</b> {{ user.username }}</li>
-        <li><b>{% trans "Password:" %}</b> {{ password }}</li>
-      </ul>
-      <p>{% blocktrans %}We strongly encourage you to change your password as
-      you first log in.{% endblock %}</p>
-    {% endblock %}
+.. highlight:: html
+
+   {% extends "mailing/base_layout.html" %}
+   {% load i18n %}
+   {% block content %}
+     <h1>{% trans "Welcome on board" %}</h1>
+     <p>{% blocktrans with name=user.first_name %}Hi {{ name }}, we are very
+     happy to count you among our members.{% endblocktrans %}</p>
+     <p>{% trans "Here are your credentials:" %}</p>
+     <ul>
+       <li><b>{% trans "Username:" %}</b> {{ user.username }}</li>
+       <li><b>{% trans "Password:" %}</b> {{ password }}</li>
+     </ul>
+     <p>{% blocktrans %}We strongly encourage you to change your password as
+     you first log in.{% endblock %}</p>
+   {% endblock %}
 
 
 Of course, it's up to you to define "mailing/base_layout.html" or not extend
