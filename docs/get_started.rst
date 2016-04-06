@@ -46,3 +46,31 @@ Extra headers
 
 .. note:: Some fields are not described above. These are not important for
    basic use and will be described later.
+
+Write your mail template
+------------------------
+
+Now create a folder "mailing" in one of your templates directories and create
+a file "user_registration.html" (or whatever campaign key you chose dot html)
+in this folder. Write your e-mail template as you would write any other
+template::
+
+    {% extends "mailing/base_layout.html" %}
+    {% load i18n %}
+    {% block content %}
+      <h1>{% trans "Welcome on board" %}</h1>
+      <p>{% blocktrans with name=user.first_name %}Hi {{ name }}, we are very
+      happy to count you among our members.{% endblocktrans %}</p>
+      <p>{% trans "Here are your credentials:" %}</p>
+      <ul>
+        <li><b>{% trans "Username:" %}</b> {{ user.username }}</li>
+        <li><b>{% trans "Password:" %}</b> {{ password }}</li>
+      </ul>
+      <p>{% blocktrans %}We strongly encourage you to change your password as
+      you first log in.{% endblock %}</p>
+    {% endblock %}
+
+
+Of course, it's up to you to define "mailing/base_layout.html" or not extend
+any layout at all. The use of i18n template tags library is also here only as
+an example.
