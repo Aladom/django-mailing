@@ -11,7 +11,7 @@ Say you are implementing user registration and want to send an e-mail to
 welcome him and give him a temporary password. This would give something like
 this:
 
-.. highlight:: python
+.. code-block:: python
 
    from django.contrib.auth import get_user_model
 
@@ -91,7 +91,7 @@ a file "user_registration.html" (or whatever campaign key you chose dot html)
 in this folder. Write your e-mail template as you would write any other
 template.
 
-.. highlight:: html
+.. code-block:: html
 
    {% extends "mailing/base_layout.html" %}
    {% load i18n %}
