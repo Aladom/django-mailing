@@ -9,7 +9,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.signing import Signer
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.template import Template
+from django.template import Template, Context
 from django.utils import timezone
 from django.utils.html import strip_tags
 
@@ -68,7 +68,7 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
     """
     if 'To' not in headers:
         raise ValueError("You must set the 'To' header.")
-    if not isinstance(context, Context)
+    if not isinstance(context, Context):
         context = Context(context)
     if not hasattr(html_template, 'render'):
         # Check Template instance (see #10)
