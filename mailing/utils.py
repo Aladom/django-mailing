@@ -68,6 +68,8 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
     """
     if 'To' not in headers:
         raise ValueError("You must set the 'To' header.")
+    if not isinstance(context, Context)
+        context = Context(context)
     if not hasattr(html_template, 'render'):
         # Check Template instance (see #10)
         html_template = Template(html_template)
