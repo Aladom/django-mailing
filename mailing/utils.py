@@ -229,9 +229,11 @@ def send_mail(mail):
 
     from_email = headers.get('From', settings.DEFAULT_FROM_EMAIL)
     to_emails = map(str.strip, headers.get('To', '').split(','))
+    cc_emails = map(str.strip, headers.get('Cc', '').split(','))
+    bcc_emails = map(str.strip, headers.get('Bcc', '').split(','))
 
     msg = EmailMultiAlternatives(subject, text_body, from_email, to_emails,
-                                 headers=headers)
+                                 cc=cc_emails, bcc=bcc_emails, headers=headers)
     msg.attach_alternative(html_body, 'text/html')
 
     for attachment in mail.get_attachments():
