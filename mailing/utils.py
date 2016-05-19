@@ -227,10 +227,10 @@ def send_mail(mail):
     text_body = mail.text_body or html_to_text(html_body)
     headers = mail.get_headers()
 
-    from_email = headers.get('From', settings.DEFAULT_FROM_EMAIL)
-    to_emails = map(str.strip, headers.get('To', '').split(','))
-    cc_emails = map(str.strip, headers.get('Cc', '').split(','))
-    bcc_emails = map(str.strip, headers.get('Bcc', '').split(','))
+    from_email = headers.pop('From', settings.DEFAULT_FROM_EMAIL)
+    to_emails = map(str.strip, headers.pop('To', '').split(','))
+    cc_emails = map(str.strip, headers.pop('Cc', '').split(','))
+    bcc_emails = map(str.strip, headers.pop('Bcc', '').split(','))
 
     msg = EmailMultiAlternatives(subject, text_body, from_email, to_emails,
                                  cc=cc_emails, bcc=bcc_emails, headers=headers)
