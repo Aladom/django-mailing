@@ -23,7 +23,7 @@ from .options import (
 __all__ = [
     'Campaign', 'CampaignMailHeader', 'CampaignStaticAttachment',
     'Mail', 'MailHeader', 'MailStaticAttachment', 'MailDynamicAttachment',
-    'SubscriptionType', 'Subscription',
+    'SubscriptionType', 'Subscription', 'Blacklist',
 ]
 
 
@@ -204,7 +204,7 @@ class Mail(models.Model):
         blank=True, editable=False, verbose_name=_("failure reason"))
 
     def __str__(self):
-        return '[{}] {}'.format(self.scheduled_on, self.subject)
+        return "[{}] {}".format(self.scheduled_on, self.subject)
 
     def get_headers(self):
         return dict(self.headers.items())
@@ -238,3 +238,35 @@ class MailDynamicAttachment(AbstractBaseDynamicAttachment):
 
     mail = models.ForeignKey(
         'Mail', models.CASCADE, related_name='dynamic_attachments')
+
+
+class Blacklist(models.Model):
+
+    class Meta:
+        verbose_name = _("blacklisted address")
+        verbose_name_plural = _("blacklisted addresses")
+        ordering = ['-reported_on']
+
+    REASON_OTHER = 1
+    REASON_SPAM = 2
+    REASON_BLOCKED = 3
+    REASON_HARDBOUNCE = 4
+    REASON_CHOICES = [
+        (REASON_SPAM, _("SPAM")),
+        (REASON_BLOCKED, _("Blocked")),
+        (REASON_HARDBOUNCE, _("Hard bounce")),
+        (REASON_OTHER, _("Other")),
+    ]
+
+    email = models.EmailField(
+        unique=True, verbose_name=_("e-mail address"))
+    reason = models.PositiveSmallIntegerField(
+        choices=REASON_CHOICES, default=REASON_OTHER,
+        verbose_name=_("reason"))
+    verbose_reason = models.CharField(
+        max_length=250, blank=True, verbose_name=_("verbose reason"))
+    reported_on = models.DateTimeField(
+        verbose_name=_("reported on"), auto_now_add=True)
+
+    def __str__(self):
+        return "{} ({})".format(self.email, self.get_reason_display())

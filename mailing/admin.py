@@ -9,7 +9,7 @@ from .forms import CampaignMailHeaderForm, MailHeaderForm
 from .models import (
     Campaign, CampaignMailHeader, CampaignStaticAttachment,
     Mail, MailHeader, MailStaticAttachment, MailDynamicAttachment,
-    SubscriptionType, Subscription,
+    SubscriptionType, Subscription, Blacklist,
 )
 
 
@@ -102,19 +102,24 @@ class MailAdmin(admin.ModelAdmin):
 
 @admin.register(SubscriptionType)
 class SubscriptionTypeAdmin(admin.ModelAdmin):
-
     list_display = [
         'name', 'subscribed_by_default',
     ]
-
     fields = ['name', 'subscribed_by_default', 'description']
 
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-
     list_display = [
         'email', 'subscription_type', 'subscribed',
     ]
     list_filter = ['subscription_type', 'subscribed']
     search_fields = ['email']
+
+
+@admin.register(Blacklist)
+class BlacklistAdmin(admin.ModelAdmin):
+    list_display = [
+        'reported_on', 'email', 'reason',
+    ]
+    list_display_links = ['reported_on', 'email']

@@ -184,6 +184,7 @@ def queue_mail(campaign_key=None, context={}, extra_headers={}, **kwargs):
     """
     fail_silently = kwargs.pop('fail_silently',
                                UNEXISTING_CAMPAIGN_FAIL_SILENTLY)
+    ignore_blacklist = kwargs.pop('ignore_blacklist', False)
     try:
         if campaign_key is None:
             subject = kwargs.pop('subject')
