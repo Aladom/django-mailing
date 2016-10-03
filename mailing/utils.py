@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.utils.html import strip_tags
 
 from .conf import UNEXISTING_CAMPAIGN_FAIL_SILENTLY, SUBSCRIPTION_SIGNING_SALT
-from .models import Mail, Campaign
+from .models import Mail, Campaign, Blacklist
 
 __all__ = [
     'render_mail', 'queue_mail', 'send_mail', 'html_to_text', 'mail_logger',
@@ -74,8 +74,10 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
         # Check Template instance (see #10)
         html_template = Template(html_template)
 
+    ignore_blacklist = kwargs.get('ignore_blacklist')
+
     headers.setdefault('From', settings.DEFAULT_FROM_EMAIL)
-    campaign = kwargs.get('campaign', None)
+    campaign = kwargs.get('campaign')
 
     subject = AutoescapeTemplate(subject).render(context)
 
@@ -97,6 +99,19 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
     rendered_headers = dict((name, AutoescapeTemplate(value).render(context))
                             for name, value in headers.items())
 
+    rendered_headers['To'], rendered_headers['Cc'], rendered_headers['Bcc'] = \
+        Blacklist.objects.filter_blacklisted(
+            rendered_headers.get('To'),
+            rendered_headers.get('Cc'),
+            rendered_headers.get('Bcc'),
+            ignore=ignore_blacklist)
+    if not rendered_headers['To']:
+        raise NoMoreRecipients("All main recipients are blacklisted")
+    if not rendered_headers['Cc']:
+        del rendered_headers['Cc']
+    if not rendered_headers['Bcc']:
+        del rendered_headers['Bcc']
+
     if campaign:
         actual_to = []
         for email in rendered_headers['To'].split(','):
@@ -104,7 +119,7 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
             if campaign.is_subscribed(email):
                 actual_to.append(email)
         if not actual_to:
-            raise NoMoreRecipients
+            raise NoMoreRecipients("All main recipients left are unsubscribed")
         rendered_headers['To'] = ', '.join(actual_to)
 
     mailing_ctx['headers'] = rendered_headers
@@ -184,7 +199,6 @@ def queue_mail(campaign_key=None, context={}, extra_headers={}, **kwargs):
     """
     fail_silently = kwargs.pop('fail_silently',
                                UNEXISTING_CAMPAIGN_FAIL_SILENTLY)
-    ignore_blacklist = kwargs.pop('ignore_blacklist', False)
     try:
         if campaign_key is None:
             subject = kwargs.pop('subject')
