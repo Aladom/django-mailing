@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from ..conf import (
     TextConfRef, TEMPLATES_UPLOAD_DIR, SUBJECT_PREFIX, MIRROR_SIGNING_SALT,
 )
+from .managers import BlacklistManager
 from .options import (
     AbstractBaseMailHeader, AbstractBaseStaticAttachment,
     AbstractBaseDynamicAttachment,
@@ -267,6 +268,8 @@ class Blacklist(models.Model):
         max_length=250, blank=True, verbose_name=_("verbose reason"))
     reported_on = models.DateTimeField(
         verbose_name=_("reported on"), auto_now_add=True)
+    
+    objects = BlacklistManager()
 
     def __str__(self):
         return "{} ({})".format(self.email, self.get_reason_display())
