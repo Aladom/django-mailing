@@ -25,7 +25,7 @@ class BlacklistManager(Manager):
     @staticmethod
     def _split_recipients(recipients):
         if isinstance(recipients, str):
-            return filter(None, recipients.split(','))
+            return list(filter(None, recipients.split(',')))
         else:
             return recipients
 
