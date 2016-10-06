@@ -15,7 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from ..conf import (
     TextConfRef, TEMPLATES_UPLOAD_DIR, SUBJECT_PREFIX, MIRROR_SIGNING_SALT,
 )
-from .managers import BlacklistManager
+from .manager import BlacklistManager
 from .options import (
     AbstractBaseMailHeader, AbstractBaseStaticAttachment,
     AbstractBaseDynamicAttachment,
