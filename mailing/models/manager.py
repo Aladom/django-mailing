@@ -6,7 +6,7 @@ import re
 from django.db.models import Manager
 
 __all__ = [
-    'MailHeaderManager',
+    'MailHeaderManager', 'BlacklistManager',
 ]
 
 
