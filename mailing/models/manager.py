@@ -48,12 +48,13 @@ class BlacklistManager(Manager):
         if ignore:
             queryset = queryset.exclude(reason__in=ignore)
         blacklisted = queryset.values_list('email', flat=True)
-        filtered = (None,) * len(recipients)
-        for i, recipient_list in enumerate(recipients):
-            if not recipient_list:
-                continue
-            filtered[i] = ', '.join(
-                r for r in recipient_list
-                if self._to_raw_email(r) not in blacklisted
-            )
+        filtered = []
+        for recipient_list in recipients:
+            if recipient_list:
+                filtered.append(', '.join(
+                    r for r in recipient_list
+                    if self._to_raw_email(r) not in blacklisted
+                ))
+            else:
+                filtered.append(None)
         return filtered
