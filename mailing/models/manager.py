@@ -38,7 +38,7 @@ class BlacklistManager(Manager):
         return email
 
     def filter_blacklisted(self, *args, **kwargs):
-        recipients = map(self._split_recipients, args)
+        recipients = list(map(self._split_recipients, args))
         ignore = kwargs.get('ignore')
         if ignore is True:
             return
