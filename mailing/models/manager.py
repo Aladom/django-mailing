@@ -22,30 +22,38 @@ class BlacklistManager(Manager):
 
     raw_email_re = re.compile(r'.*\s<([^<> ]+)>')
 
+    @staticmethod
+    def _split_recipients(recipients):
+        if isinstance(recipients, str):
+            return filter(None, recipients.split(','))
+        else:
+            return recipients
+
     @classmethod
     def _to_raw_email(cls, email):
+        email = email.strip()
         match = cls.raw_email_re.match(email)
         if match:
             email = match.group(1)
         return email
 
     def filter_blacklisted(self, *args, **kwargs):
-        return args  # FIXME
+        recipients = map(self._split_recipients, args)
         ignore = kwargs.get('ignore')
         if ignore is True:
             return
         flatten = map(self._to_raw_email,
-                      reduce(lambda x, y: x+y if y else x, args, []))
+                      reduce(lambda x, y: x+y if y else x, recipients, []))
         queryset = self.get_queryset().filter(email__in=flatten)
         if ignore:
             queryset = queryset.exclude(reason__in=ignore)
         blacklisted = queryset.values_list('email', flat=True)
-        filtered = (None,) * len(args)
-        for i, recipient_list in enumerate(args):
+        filtered = (None,) * len(recipients)
+        for i, recipient_list in enumerate(recipients):
             if not recipient_list:
                 continue
-            filtered[i] = [
+            filtered[i] = ', '.join(
                 r for r in recipient_list
                 if self._to_raw_email(r) not in blacklisted
-            ]
+            )
         return filtered
