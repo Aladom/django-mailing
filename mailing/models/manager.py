@@ -30,6 +30,7 @@ class BlacklistManager(Manager):
         return email
 
     def filter_blacklisted(self, *args, **kwargs):
+        return args  # FIXME
         ignore = kwargs.get('ignore')
         if ignore is True:
             return
