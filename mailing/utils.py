@@ -46,7 +46,7 @@ def html_to_text(html):
 
 
 @transaction.atomic
-def render_mail(subject, html_template, headers, context={}, **kwargs):
+def render_mail(subject, html_template, headers, context=None, **kwargs):
     """Create and return a Mail instance.
 
     - `subject`: The subject of the mail, may contain template variables.
@@ -66,6 +66,7 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
         - `scheduled_on`: A `datetime.datetime` instance representing the date
           when the mail must be sent.
     """
+    headers = headers or {}
     if 'To' not in headers:
         raise ValueError("You must set the 'To' header.")
     if not isinstance(context, Context):
@@ -153,7 +154,7 @@ def render_mail(subject, html_template, headers, context={}, **kwargs):
     return mail
 
 
-def render_campaign_mail(campaign, context={}, **kwargs):
+def render_campaign_mail(campaign, context=None, **kwargs):
     """Create and return a Mail instance from a Campaign and given context.
     May raise IOError or OSError if reading the template file failed. It's up
     to you to catch these exceptions and handle them properly.
@@ -161,7 +162,7 @@ def render_campaign_mail(campaign, context={}, **kwargs):
     subject = kwargs.pop('subject', campaign.get_subject())
     html_template = kwargs.pop('html_template', campaign.get_template())
     headers = dict(campaign.extra_headers.items())
-    headers.update(kwargs.pop('extra_headers', {}))
+    headers.update(kwargs.pop('extra_headers', None) or {})
     static_attachments = kwargs.pop('static_attachments', [])
     for attachment in campaign.static_attachments.all():
         static_attachments.append({
@@ -174,7 +175,7 @@ def render_campaign_mail(campaign, context={}, **kwargs):
     return render_mail(subject, html_template, headers, context, **kwargs)
 
 
-def queue_mail(campaign_key=None, context={}, extra_headers={}, **kwargs):
+def queue_mail(campaign_key=None, context=None, extra_headers=None, **kwargs):
     """Create and save a Mail instance from a Campaign and given context.
 
     You may omit `campaign_key` (or set it to None) to send a mail that not
