@@ -5,7 +5,8 @@ from io import BytesIO, StringIO
 import re
 from uuid import uuid4
 
-from django.core.files import File, ContentFile
+from django.core.files import File
+from django.core.files.base import ContentFile
 from django.db.models import Manager
 
 __all__ = [
