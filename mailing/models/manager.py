@@ -30,9 +30,9 @@ class DynamicAttachmentManager(Manager):
             attachment = ContentFile(attachment)
         elif isinstance(attachment, (BytesIO, StringIO)):
             attachment = File(attachment)
-        if not issubclass(attachment, File):
+        if not isinstance(attachment, File):
             raise TypeError(
-                "attachment must be a subclass of 'django.core.files.File'.")
+                "'attachment' must be a 'django.core.files.File'.")
         filename = kwargs.get('filename')
         if not filename:
             filename = str(uuid4())
