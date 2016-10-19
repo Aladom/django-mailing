@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
 from functools import reduce
+from io import BytesIO, StringIO
 import re
+from uuid import uuid4
 
+from django.core.files import File, ContentFile
 from django.db.models import Manager
 
 __all__ = [
-    'MailHeaderManager', 'BlacklistManager',
+    'MailHeaderManager', 'BlacklistManager', 'DynamicAttachmentManager',
 ]
 
 
@@ -16,6 +19,26 @@ class MailHeaderManager(Manager):
         """Return headers as a list of tuples (name, value)."""
         for header in self.get_queryset():
             yield header.name, header.value
+
+
+class DynamicAttachmentManager(Manager):
+
+    def create(self, **kwargs):
+        attachment = kwargs['attachment']
+        if isinstance(attachment, (str, bytes)):
+            attachment = ContentFile(attachment)
+        elif isinstance(attachment, (BytesIO, StringIO)):
+            attachment = File(attachment)
+        if not issubclass(attachment, File):
+            raise TypeError(
+                "attachment must be a subclass of 'django.core.files.File'.")
+        filename = kwargs.get('filename')
+        if not filename:
+            filename = str(uuid4())
+        obj = self.model(**kwargs)
+        obj.attachment.save(filename, attachment, save=False)
+        obj.save()
+        return obj
 
 
 class BlacklistManager(Manager):

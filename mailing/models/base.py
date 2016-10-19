@@ -268,7 +268,7 @@ class Blacklist(models.Model):
         max_length=250, blank=True, verbose_name=_("verbose reason"))
     reported_on = models.DateTimeField(
         verbose_name=_("reported on"), auto_now_add=True)
-    
+
     objects = BlacklistManager()
 
     def __str__(self):
