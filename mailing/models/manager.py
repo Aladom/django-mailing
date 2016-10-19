@@ -25,7 +25,7 @@ class MailHeaderManager(Manager):
 class DynamicAttachmentManager(Manager):
 
     def create(self, **kwargs):
-        attachment = kwargs['attachment']
+        attachment = kwargs.pop('attachment')
         if isinstance(attachment, (str, bytes)):
             attachment = ContentFile(attachment)
         elif isinstance(attachment, (BytesIO, StringIO)):
