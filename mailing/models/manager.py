@@ -2,6 +2,7 @@
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
 from functools import reduce
 from io import BytesIO, StringIO
+import os.path
 import re
 from uuid import uuid4
 
@@ -11,6 +12,7 @@ from django.db.models import Manager
 
 __all__ = [
     'MailHeaderManager', 'BlacklistManager', 'DynamicAttachmentManager',
+    'StaticAttachmentManager',
 ]
 
 
@@ -38,6 +40,19 @@ class DynamicAttachmentManager(Manager):
             filename = str(uuid4())
         obj = self.model(**kwargs)
         obj.attachment.save(filename, attachment, save=False)
+        obj.save()
+        return obj
+
+
+class StaticAttachmentManager(Manager):
+
+    def create(self, **kwargs):
+        base_path = self.model._meta.get_field('attachment').path
+        attachment = kwargs.pop('attachment')
+        if not attachment.startswith(base_path + '/'):
+            attachment = os.path.join(base_path, attachment)
+        kwargs['attachment'] = attachment
+        obj = self.model(**kwargs)
         obj.save()
         return obj
 

@@ -10,7 +10,9 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from ..conf import ATTACHMENTS_DIR, ATTACHMENTS_UPLOAD_DIR
-from .manager import MailHeaderManager, DynamicAttachmentManager
+from .manager import (
+    MailHeaderManager, DynamicAttachmentManager, StaticAttachmentManager,
+)
 
 __all__ = [
     'AbstractBaseMailHeader', 'AbstractBaseStaticAttachment',
@@ -113,6 +115,8 @@ class AbstractBaseStaticAttachment(AbstractBaseAttachment):
     attachment = FilePathField(
         path=ATTACHMENTS_DIR, recursive=True,
         verbose_name=_("file"))
+
+    objects = StaticAttachmentManager()
 
     def get_file_path(self):
         return self.attachment
