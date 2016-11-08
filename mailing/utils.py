@@ -25,6 +25,8 @@ mail_logger = logging.getLogger('mailing.mail')
 script_tags_regex = re.compile(r'<script(\s.*)?>.*</script>', re.I | re.S)
 script_tags_regex_a = re.compile(
     r'<a\s([^>]*\s)?href="(?P<url>[^"]+)"[^>]*>(?P<text>.*?)</a>', re.I | re.S)
+script_tags_regex_img = re.compile(
+    r'<img\s([^>]*\s)?alt="(?P<alt>[^"]+)"[^>]*>', re.I | re.S)
 
 
 class NoMoreRecipients(ValueError):
@@ -41,8 +43,9 @@ def html_to_text(html):
     - Remove HTML tags
     """
     # TODO keep href attribute of <a> tags. (See #1)
-    # TODO keep alt attribute of <img> tags. (See #1)
     text = script_tags_regex_a.sub(r'\g<text> (\g<url>)', html)
+    # TODO keep alt attribute of <img> tags. (See #1)
+    text = script_tags_regex_img.sub(r'\g<alt>', text)
     text = script_tags_regex.sub('', text)
     text = strip_tags(text)
     return text

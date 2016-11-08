@@ -68,13 +68,13 @@ class HtmlToTextTestCase(TestCase):
 
     def test_picture(self):
         html = (
-            "<p>Une image : <img src='https://example.com/example.jpg' "
-            "alt='Example'></p>\n\n"
-            "<p>Une autre image : <img "
-            "src='https://example.com/example.png'/></p>\n\n"
-            "<a href='https://example.com/my-ads'><img alt='Voir mes "
-            "annonces' src='https://example.com/view-ads.png'></a>\n\n"
-            "<img alt='Toto' />"
+            '<p>Une image : <img src="https://example.com/example.jpg" '
+            'alt="Example"></p>\n\n'
+            '<p>Une autre image : <img '
+            'src="https://example.com/example.png"/></p>\n\n'
+            '<a href="https://example.com/my-ads"><img alt="Voir mes '
+            'annonces" src="https://example.com/view-ads.png"></a>\n\n'
+            '<img alt="Toto" />'
         )
         text = (
             "Une image : Example\n\n"
