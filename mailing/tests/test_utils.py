@@ -18,11 +18,11 @@ class HtmlToTextTestCase(TestCase):
 
     def test_html_with_attributes(self):
         html = (
-            "<p style='line-height:20px;color:blue'>Ceci est du "
-            "<a href='http://example.com/' target=_blank>HTML</a>.</p>"
+            '<p style="line-height:20px;color:blue">Ceci est du '
+            '<a href="http://example.com/" target=_blank>HTML</a>.</p>'
         )
         text = (
-            "Ceci est du HTML (http://example.com)."
+            "Ceci est du HTML (http://example.com/)."
         )
         self.assertMultiLineEqual(html_to_text(html), text)
 
