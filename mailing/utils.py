@@ -24,9 +24,11 @@ mail_logger = logging.getLogger('mailing.mail')
 
 script_tags_regex = re.compile(r'<script(\s.*)?>.*</script>', re.I | re.S)
 script_tags_regex_a = re.compile(
-    r'<a\s([^>]*\s)?href="(?P<url>[^"]+)"[^>]*>(?P<text>.*?)</a>', re.I | re.S)
+   r'''<a\s([^>]*\s)?href=(?P<url>("[^"]+"|'[^']+'))[^>]*>(?P<text>.*?)</a>''',
+   re.I | re.S)
 script_tags_regex_img = re.compile(
-    r'<img\s([^>]*\s)?alt="(?P<alt>[^"]+)"[^>]*>', re.I | re.S)
+   r'''<img\s([^>]*\s)?alt=(?P<alt>("[^"]+"|'[^']+'))[^>]*>''',
+   re.I | re.S)
 
 
 class NoMoreRecipients(ValueError):
@@ -37,15 +39,28 @@ def AutoescapeTemplate(value):
     return Template('{% autoescape off %}' + value + '{% endautoescape %}')
 
 
+def _a_to_text(m):
+    text = m.group('text')
+    url = m.group('url')[1:-1]
+    if url == text:
+        return text
+    return '{text} ({url})'.format(
+        url=url,
+        text=text,
+    )
+
+
+def _img_to_text(m):
+    return m.group('alt')[1:-1]
+
+
 def html_to_text(html):
     """Convert an HTML content to readable plain text content.
     - Remove <script></script> contents
     - Remove HTML tags
     """
-    # TODO keep href attribute of <a> tags. (See #1)
-    text = script_tags_regex_a.sub(r'\g<text> (\g<url>)', html)
-    # TODO keep alt attribute of <img> tags. (See #1)
-    text = script_tags_regex_img.sub(r'\g<alt>', text)
+    text = script_tags_regex_a.sub(_a_to_text, html)
+    text = script_tags_regex_img.sub(_img_to_text, text)
     text = script_tags_regex.sub('', text)
     text = strip_tags(text)
     return text

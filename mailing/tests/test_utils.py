@@ -26,6 +26,16 @@ class HtmlToTextTestCase(TestCase):
         )
         self.assertMultiLineEqual(html_to_text(html), text)
 
+    def test_html_with_attributes_and_apostrophe(self):
+        html = (
+            "<p style='line-height:20px;color:blue'>Ceci est du "
+            "<a href='http://example.com/' target=_blank>HTML</a>.</p>"
+        )
+        text = (
+            'Ceci est du HTML (http://example.com/).'
+        )
+        self.assertMultiLineEqual(html_to_text(html), text)
+
     def test_linefeed(self):
         html = (
             "<p>Ceci\n"
