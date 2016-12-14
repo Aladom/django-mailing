@@ -211,7 +211,7 @@ class Mail(models.Model):
         return dict(self.headers.items())
 
     def get_attachments(self):
-        return []
+        return list(self.static_attachments.all()) + list(self.dynamic_attachments.all())
 
     def get_absolute_url(self):
         signer = Signer(salt=MIRROR_SIGNING_SALT)
