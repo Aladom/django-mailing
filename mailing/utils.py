@@ -278,7 +278,7 @@ def send_mail(mail):
 
     for attachment in mail.get_attachments():
         msg.attach(attachment.filename, attachment.get_file_content(),
-                   attachment.mime_type)
+                   attachment.get_mime_type())
 
     msg.send()
     return msg
