@@ -18,8 +18,8 @@ class TagNode(Node):
         self.tag_name = tag_name
         self.extra_context = extra_context or {}
 
-    def get_template(self):
-        template_name = 'mailing/html_tags/{}.html'.format(self.tag_name)
+    def get_template(self, tag_name):
+        template_name = 'mailing/html_tags/{}.html'.format(tag_name)
         try:
             template = get_template(template_name)
         except TemplateDoesNotExist:
@@ -28,10 +28,11 @@ class TagNode(Node):
         return template
 
     def render(self, context):
+        tag_name = self.tag_name.resolve(context)
         content = self.nodelist.render(context)
-        template = self.get_template()
+        template = self.get_template(tag_name)
         template_context = Context({
-            'tag_name': self.tag_name,
+            'tag_name': tag_name,
             'content': content,
         })
         values = dict((key, val.resolve(context)) for key, val in
@@ -47,15 +48,10 @@ def make_tag(parser, token):
     tokens = token.split_contents()
 
     try:
-        tag_name = tokens[1]
+        tag_name = parser.compile_filter(tokens[1])
     except IndexError:
         raise TemplateSyntaxError(
             "'{}' tag requires at least 1 argument.".format(tokens[0]))
-
-    if tag_name[0] != tag_name[-1] or tag_name[0] not in ['"', "'"]:
-        raise TemplateSyntaxError(
-            "'{}' tag's first argument should be in quotes.".format(tokens[0]))
-    tag_name = tag_name[1:-1]
 
     options = {}
     remaining_bits = tokens[2:]
