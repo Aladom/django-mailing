@@ -5,7 +5,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from .models import (
     CampaignMailHeader, MailHeader, Subscription, SubscriptionType,
+    CampaignStaticAttachment, MailStaticAttachment,
 )
+
+__all__ = [
+    'CampaignMailHeaderForm', 'MailHeaderForm', 'SubscriptionsManagementForm',
+    'CampaignStaticAttachmentForm', 'MailStaticAttachmentForm',
+]
 
 
 class CampaignMailHeaderForm(forms.ModelForm):
@@ -61,3 +67,25 @@ class SubscriptionsManagementForm(forms.Form):
             elif subscriptions[pk].subscribed != value:
                 subscriptions[pk].subscribed = value
                 subscriptions[pk].save()
+
+
+class CampaignStaticAttachmentForm(forms.ModelForm):
+
+    class Meta:
+        model = CampaignStaticAttachment
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['attachment'].widget.choices.insert(0, ('', '------'))
+
+
+class MailStaticAttachmentForm(forms.ModelForm):
+
+    class Meta:
+        model = MailStaticAttachment
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['attachment'].widget.choices.insert(0, ('', '------'))

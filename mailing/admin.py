@@ -5,12 +5,22 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
 from .conf import pytz_is_available, SUBJECT_PREFIX
-from .forms import CampaignMailHeaderForm, MailHeaderForm
+from .forms import (
+    CampaignMailHeaderForm, MailHeaderForm, CampaignStaticAttachmentForm,
+    MailStaticAttachmentForm,
+)
 from .models import (
     Campaign, CampaignMailHeader, CampaignStaticAttachment,
     Mail, MailHeader, MailStaticAttachment, MailDynamicAttachment,
     SubscriptionType, Subscription, Blacklist,
 )
+
+__all__ = [
+    'CampaignMailHeaderInline', 'MailHeaderInline',
+    'CampaignStaticAttachmentInline', 'MailStaticAttachmentInline',
+    'MailDynamicAttachmentInline', 'CampaignAdmin', 'MailAdmin',
+    'SubscriptionTypeAdmin', 'SubscriptionAdmin', 'BlacklistAdmin',
+]
 
 
 class CampaignMailHeaderInline(admin.TabularInline):
@@ -28,11 +38,13 @@ class MailHeaderInline(admin.TabularInline):
 class CampaignStaticAttachmentInline(admin.TabularInline):
     model = CampaignStaticAttachment
     extra = 1
+    form = CampaignStaticAttachmentForm
 
 
 class MailStaticAttachmentInline(admin.TabularInline):
     model = MailStaticAttachment
     extra = 1
+    form = MailStaticAttachmentForm
 
 
 class MailDynamicAttachmentInline(admin.TabularInline):
