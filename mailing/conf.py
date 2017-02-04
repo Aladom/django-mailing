@@ -44,7 +44,7 @@ Defaults to "mailing/templates"
 """
 
 ATTACHMENTS_DIR = get_setting('ATTACHMENTS_DIR',
-                              os.path.join(settings.STATIC_ROOT,
+                              os.path.join(str(settings.STATIC_ROOT),
                                            'mailing', 'attachments'))
 """The path where mail static attachments may be found.
 
