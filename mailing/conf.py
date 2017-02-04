@@ -43,9 +43,8 @@ See https://docs.djangoproject.com/en/1.9/ref/models/fields/\
 Defaults to "mailing/templates"
 """
 
-ATTACHMENTS_DIR = get_setting('ATTACHMENTS_DIR',
-                              os.path.join(str(settings.STATIC_ROOT),
-                                           'mailing', 'attachments'))
+ATTACHMENTS_DIR = get_setting('ATTACHMENTS_DIR', os.path.join(
+    str(settings.STATIC_ROOT), 'mailing', 'attachments'))
 """The path where mail static attachments may be found.
 
 This will be passed as `path` argument of
