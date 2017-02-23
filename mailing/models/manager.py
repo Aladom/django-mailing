@@ -80,7 +80,7 @@ class BlacklistManager(Manager):
         recipients = list(map(self._split_recipients, args))
         ignore = kwargs.get('ignore')
         if ignore is True:
-            return
+            return args
         flatten = map(self._to_raw_email,
                       reduce(lambda x, y: x+y if y else x, recipients, []))
         queryset = self.get_queryset().filter(email__in=flatten)
