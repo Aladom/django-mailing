@@ -116,6 +116,7 @@ def render_mail(subject, html_template, headers, context=None, **kwargs):
     }
     if campaign:
         mailing_ctx['campaign'] = campaign.name
+        mailing_ctx['subscription_type'] = campaign.subscription_type
     context.update({'mailing': mailing_ctx})
 
     rendered_headers = dict((name, AutoescapeTemplate(value).render(context))
