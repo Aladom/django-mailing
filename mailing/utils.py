@@ -115,8 +115,7 @@ def render_mail(subject, html_template, headers, context=None, **kwargs):
         'mirror': mail.get_absolute_url(),
     }
     if campaign:
-        mailing_ctx['campaign'] = campaign.name
-        mailing_ctx['subscription_type'] = campaign.subscription_type
+        mailing_ctx['campaign'] = campaign
     context.update({'mailing': mailing_ctx})
 
     rendered_headers = dict((name, AutoescapeTemplate(value).render(context))
