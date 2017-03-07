@@ -59,7 +59,7 @@ class StaticAttachmentManager(Manager):
 
 class BlacklistManager(Manager):
 
-    raw_email_re = re.compile(r'.*\s<([^<> ]+)>')
+    raw_email_re = re.compile(r'.*<\s*([^<> ]+)\s*>')
 
     @staticmethod
     def _split_recipients(recipients):
