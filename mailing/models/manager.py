@@ -109,7 +109,7 @@ class SubscriptionManager(Manager):
             filter_kwargs['subscription_type'] = kwargs['subscription_type']
         else:
             raise KeyError("Missing subscription type")
-        nb_updates = self.objects.filter(**filter_kwargs).update(
+        nb_updates = self.get_queryset().filter(**filter_kwargs).update(
             subscribed=kwargs['subscribed'])
         if not nb_updates:
-            self.objects.create(**kwargs)
+            self.create(**kwargs)
