@@ -12,7 +12,7 @@ from django.db.models import Manager
 
 __all__ = [
     'MailHeaderManager', 'BlacklistManager', 'DynamicAttachmentManager',
-    'StaticAttachmentManager',
+    'StaticAttachmentManager', 'SubscriptionManager',
 ]
 
 
@@ -97,3 +97,19 @@ class BlacklistManager(Manager):
             else:
                 filtered.append(None)
         return filtered
+
+
+class SubscriptionManager(Manager):
+
+    def create_or_update(self, **kwargs):
+        filter_kwargs = {'email': kwargs['email']}
+        if 'subscription_type_id' in kwargs:
+            filter_kwargs['subscription_type_id'] = kwargs['subscription_type_id']
+        elif 'subscription_type' in kwargs:
+            filter_kwargs['subscription_type'] = kwargs['subscription_type']
+        else:
+            raise KeyError("Missing subscription type")
+        nb_updates = self.objects.filter(**filter_kwargs).update(
+            subscribed=kwargs['subscribed'])
+        if not nb_updates:
+            self.objects.create(**kwargs)
