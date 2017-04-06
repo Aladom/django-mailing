@@ -9,7 +9,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.signing import Signer
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.template import Template
+from django.template.backends.django import Template
 from django.utils import timezone
 from django.utils.html import strip_tags
 
