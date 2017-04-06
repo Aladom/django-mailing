@@ -9,7 +9,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.signing import Signer
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.template.backends.django import Template
+from django.template.backends.django import Template, DjangoTemplates
 from django.utils import timezone
 from django.utils.html import strip_tags
 
@@ -36,7 +36,7 @@ class NoMoreRecipients(ValueError):
 
 
 def AutoescapeTemplate(value):
-    return Template('{% autoescape off %}' + value + '{% endautoescape %}')
+    return Template('{% autoescape off %}' + value + '{% endautoescape %}', DjangoTemplates)
 
 
 def _a_to_text(m):
@@ -92,7 +92,7 @@ def render_mail(subject, html_template, headers, context=None, **kwargs):
         raise ValueError("You must set the 'To' header.")
     if not hasattr(html_template, 'render'):
         # Check Template instance (see #10)
-        html_template = Template(html_template)
+        html_template = Template(html_template, DjangoTemplates)
 
     ignore_blacklist = kwargs.get('ignore_blacklist')
 
