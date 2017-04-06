@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
-from django.template import Library, Node, Context, Template
+from django.template import Library, Node
 from django.template.defaulttags import token_kwargs
 from django.template.exceptions import (
     TemplateDoesNotExist, TemplateSyntaxError,
 )
 from django.template.loader import get_template
+
+from ..utils import get_template_backend
 
 
 register = Library()
@@ -23,7 +25,7 @@ class TagNode(Node):
         try:
             template = get_template(template_name)
         except TemplateDoesNotExist:
-            template = Template(
+            template = get_template_backend().from_string(
                 "<{{ tag_name }}>{{ content }}</{{ tag_name }}>")
         return template
 
@@ -31,10 +33,10 @@ class TagNode(Node):
         tag_name = self.tag_name.resolve(context)
         content = self.nodelist.render(context)
         template = self.get_template(tag_name)
-        template_context = Context({
+        template_context = {
             'tag_name': tag_name,
             'content': content,
-        })
+        }
         values = dict((key, val.resolve(context)) for key, val in
                       self.extra_context.items())
         with template_context.push(**values):

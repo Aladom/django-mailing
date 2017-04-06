@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
+from functools import lru_cache
 import logging
 import re
 import warnings
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.core.mail import EmailMultiAlternatives
 from django.core.signing import Signer
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.template.backends.django import Template
-from django.template.engine import Engine
+from django.template.backends.django import DjangoTemplates
 from django.utils import timezone
 from django.utils.html import strip_tags
 
@@ -19,6 +20,7 @@ from .models import Mail, Campaign, Blacklist
 
 __all__ = [
     'render_mail', 'queue_mail', 'send_mail', 'html_to_text', 'mail_logger',
+    'get_template_backend',
 ]
 
 mail_logger = logging.getLogger('mailing.mail')
@@ -32,12 +34,22 @@ script_tags_regex_img = re.compile(
    re.I | re.S)
 
 
+@lru_cache()
+def get_template_backend():
+    from django.template import engines
+    for engine in engines.all():
+        if isinstance(engine, DjangoTemplates):
+            return engine
+    raise ImproperlyConfigured("No DjangoTemplates backend is configured")
+
+
 class NoMoreRecipients(ValueError):
     pass
 
 
 def AutoescapeTemplate(value):
-    return Template('{% autoescape off %}' + value + '{% endautoescape %}', Engine.get_default())
+    return get_template_backend().from_string(
+        '{% autoescape off %}' + value + '{% endautoescape %}')
 
 
 def _a_to_text(m):
@@ -93,7 +105,7 @@ def render_mail(subject, html_template, headers, context=None, **kwargs):
         raise ValueError("You must set the 'To' header.")
     if not hasattr(html_template, 'render'):
         # Check Template instance (see #10)
-        html_template = Template(html_template, Engine.get_default())
+        html_template = get_template_backend().from_string(html_template)
 
     ignore_blacklist = kwargs.get('ignore_blacklist')
 
@@ -151,7 +163,7 @@ def render_mail(subject, html_template, headers, context=None, **kwargs):
     text_body = ""
     if 'text_template' in kwargs:
         text_template = kwargs['text_template']
-        if not isinstance(text_template, Template):
+        if not hasattr(text_template, 'render'):
             text_template = AutoescapeTemplate(text_template)
         text_body = text_template.render(context)
 
