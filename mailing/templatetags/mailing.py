@@ -37,10 +37,11 @@ class TagNode(Node):
             'tag_name': tag_name,
             'content': content,
         }
-        values = dict((key, val.resolve(context)) for key, val in
-                      self.extra_context.items())
-        with template_context.push(**values):
-            return template.render(template_context)
+        template_context.update(
+            dict((key, val.resolve(context)) for key, val in
+                 self.extra_context.items())
+        )
+        return template.render(template_context)
 
 
 @register.tag(name="tag")
