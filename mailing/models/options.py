@@ -74,18 +74,19 @@ class AbstractBaseAttachment(models.Model):
         raise NotImplementedError(
             "Subclasses of 'AbstractBaseAttachment' must implement a "
             "'get_file_path' method.")
-        
+
     def get_mime_type(self):
         mime_type = self.mime_type
         if not mime_type:
-            path = self.get_file_path()
-            filename = self.filename or os.path.basename(path)
+            filename = self.get_file_name()
             mime_type = mimetypes.guess_type(filename)[0] or DEFAULT_ATTACHMENT_MIME_TYPE
         return mime_type
 
+    def get_file_name(self):
+        return self.filename or os.path.basename(self.get_file_path())
+
     def get_file_content(self):
         path = self.get_file_path()
-        filename = self.filename or os.path.basename(path)
         mime_type = self.get_mime_type()
         basetype = mime_type.split('/', 1)[0]
         read_mode = 'r' if basetype == 'text' else 'rb'
