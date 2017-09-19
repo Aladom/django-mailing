@@ -26,10 +26,11 @@ __all__ = [
 mail_logger = logging.getLogger('mailing.mail')
 
 script_tags_regex = re.compile(r'<script(\s.*)?>.*</script>', re.I | re.S)
-script_tags_regex_a = re.compile(
+style_tags_regex = re.compile(r'<style(\s.*)?>.*</style>', re.I | re.S)
+a_tags_regex = re.compile(
    r'''<a\s([^>]*\s)?href=(?P<url>("[^"]+"|'[^']+'))[^>]*>(?P<text>.*?)</a>''',
    re.I | re.S)
-script_tags_regex_img = re.compile(
+img_tags_regex = re.compile(
    r'''<img\s([^>]*\s)?alt=(?P<alt>("[^"]+"|'[^']+'))[^>]*>''',
    re.I | re.S)
 
@@ -72,8 +73,9 @@ def html_to_text(html):
     - Remove <script></script> contents
     - Remove HTML tags
     """
-    text = script_tags_regex_a.sub(_a_to_text, html)
-    text = script_tags_regex_img.sub(_img_to_text, text)
+    text = a_tags_regex.sub(_a_to_text, html)
+    text = img_tags_regex.sub(_img_to_text, text)
+    text = style_tags_regex.sub('', text)
     text = script_tags_regex.sub('', text)
     text = strip_tags(text)
     return text
