@@ -89,7 +89,7 @@ class MailAdmin(admin.ModelAdmin):
         'subject', 'campaign', 'scheduled_on', 'sent_on', 'status',
     ]
     list_filter = ['status', 'campaign']
-    search_fields = ['subject']
+    search_fields = ['subject', 'headers__value']
     if not settings.USE_TZ or pytz_is_available:
         date_hierarchy = 'scheduled_on'
 
