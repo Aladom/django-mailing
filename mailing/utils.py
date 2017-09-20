@@ -157,7 +157,7 @@ def render_mail(subject, html_template, headers, context=None, **kwargs):
             raise NoMoreRecipients("All main recipients left are unsubscribed")
         rendered_headers['To'] = ', '.join(actual_to)
         email = actual_to[0]
-        match = re.match(r'.*\s<([^<> ]+)>')
+        match = re.match(r'.*\s<([^<> ]+)>', email)
         if match:
             email = match.group(1)
         mailing_ctx['subscriptions_management_url'] = \
