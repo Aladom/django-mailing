@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from django.core.files import File
 from django.core.files.base import ContentFile
+from django.db import transaction
 from django.db.models import Manager
 
 __all__ = [
@@ -101,6 +102,7 @@ class BlacklistManager(Manager):
 
 class SubscriptionManager(Manager):
 
+    @transaction.atomic
     def create_or_update(self, **kwargs):
         filter_kwargs = {'email': kwargs['email']}
         if 'subscription_type_id' in kwargs:
