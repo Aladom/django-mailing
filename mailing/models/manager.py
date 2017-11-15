@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
+# Copyright (c) 2017 Aladom SAS & Hosting Dvpt SAS
 from functools import reduce
 from io import BytesIO, StringIO
 import os.path
@@ -8,7 +8,7 @@ from uuid import uuid4
 
 from django.core.files import File
 from django.core.files.base import ContentFile
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.db.models import Manager
 
 __all__ = [
@@ -111,7 +111,8 @@ class SubscriptionManager(Manager):
             filter_kwargs['subscription_type'] = kwargs['subscription_type']
         else:
             raise KeyError("Missing subscription type")
-        nb_updates = self.get_queryset().filter(**filter_kwargs).update(
-            subscribed=kwargs['subscribed'])
-        if not nb_updates:
+        try:
             self.create(**kwargs)
+        except IntegrityError:
+            self.get_queryset().filter(**filter_kwargs).update(
+                subscribed=kwargs['subscribed'])
