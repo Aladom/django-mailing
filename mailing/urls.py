@@ -3,7 +3,11 @@ from django.conf.urls import url
 
 from .views import MirrorView, SubscriptionsManagementView
 
+__all__ = [
+    'app_name', 'urlpatterns',
+]
 
+app_name = 'mailing'
 urlpatterns = [
     url(r'^mirror/(?P<signed_pk>[0-9]+:[a-zA-Z0-9_-]+)/$',
         MirrorView.as_view(), name='mirror'),

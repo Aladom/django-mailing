@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.mail import EmailMultiAlternatives
 from django.core.signing import Signer
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import transaction
 from django.template.backends.django import DjangoTemplates
 from django.utils import timezone

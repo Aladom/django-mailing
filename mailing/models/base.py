@@ -5,7 +5,7 @@ import os
 import re
 
 from django.core.signing import Signer
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.template import Template
 from django.template.loader import get_template
