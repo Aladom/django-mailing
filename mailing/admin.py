@@ -81,6 +81,12 @@ class CampaignAdmin(admin.ModelAdmin):
         queryset.update(is_enabled=False)
     disable.short_description = _("Disable selected e-mail campaigns")
 
+    def get_queryset(self, request):
+        return (
+            super().get_queryset(request)
+            .select_related('subscription_type')
+        )
+
 
 @admin.register(Mail)
 class MailAdmin(admin.ModelAdmin):
@@ -110,6 +116,9 @@ class MailAdmin(admin.ModelAdmin):
         MailDynamicAttachmentInline
     ]
     readonly_fields = ['sent_on', 'failure_reason']
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('campaign')
 
 
 @admin.register(SubscriptionType)
