@@ -117,6 +117,8 @@ class Campaign(models.Model):
             "Even if a script requests for sending. This is a way to turn off "
             "some campaigns temporarily without changing the source code."
         ))
+    debug_mode = models.BooleanField(
+        default=False, verbose_name=_("debug mode"))
     template_file = models.FileField(
         upload_to=templates_upload_to, blank=True,
         verbose_name=_("template file"),
@@ -210,7 +212,9 @@ class Mail(models.Model):
         return "[{}] {}".format(self.scheduled_on, self.subject)
 
     def get_headers(self):
-        return dict(self.headers.items())
+        headers = dict(self.headers.items())
+        headers.setdefault("X-Mail-Id", str(self.pk))
+        return headers
 
     def get_attachments(self):
         return list(self.static_attachments.all()) + list(self.dynamic_attachments.all())

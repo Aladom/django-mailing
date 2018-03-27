@@ -286,13 +286,22 @@ def send_mail(mail):
     headers = mail.get_headers()
 
     from_email = headers.pop('From', settings.DEFAULT_FROM_EMAIL)
-    to_emails = filter(None, map(
-        str.strip, headers.pop('To', '').split(',')))
-    cc_emails = filter(None, map(
-        str.strip, headers.pop('Cc', '').split(',')))
-    bcc_emails = filter(None, map(
-        str.strip, headers.pop('Bcc', '').split(',')))
-
+    if mail.campaign and mail.campaign.debug_mode:
+        to_emails = ['dev@aladom.fr']
+        cc_emails = []
+        bcc_emails = []
+        mail_logger.warning(
+            "[DEBUG] Send mail {id} (campaign: {campaign})".format(
+                id=mail.pk, campaign=mail.campaign.key
+            )
+        )
+    else:
+        to_emails = filter(None, map(
+            str.strip, headers.pop('To', '').split(',')))
+        cc_emails = filter(None, map(
+            str.strip, headers.pop('Cc', '').split(',')))
+        bcc_emails = filter(None, map(
+            str.strip, headers.pop('Bcc', '').split(',')))
     msg = EmailMultiAlternatives(subject, text_body, from_email, to_emails,
                                  cc=cc_emails, bcc=bcc_emails, headers=headers)
     msg.attach_alternative(html_body, 'text/html')
