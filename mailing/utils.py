@@ -141,6 +141,7 @@ def render_mail(subject, html_template, headers, context=None, **kwargs):
             rendered_headers.get('Bcc'),
             ignore=ignore_blacklist)
     if not rendered_headers['To']:
+        mail.delete()
         raise NoMoreRecipients("All main recipients are blacklisted")
     if not rendered_headers['Cc']:
         del rendered_headers['Cc']
@@ -154,6 +155,7 @@ def render_mail(subject, html_template, headers, context=None, **kwargs):
             if campaign.is_subscribed(email):
                 actual_to.append(email)
         if not actual_to:
+            mail.delete()
             raise NoMoreRecipients("All main recipients left are unsubscribed")
         rendered_headers['To'] = ', '.join(actual_to)
         email = actual_to[0]
