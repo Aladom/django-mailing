@@ -57,13 +57,16 @@ class CampaignAdmin(admin.ModelAdmin):
 
     list_display = [
         'key', 'name', 'subject', 'subscription_type', 'is_enabled',
+        'debug_mode',
     ]
     list_display_links = ['key', 'name']
-    list_filter = ['is_enabled', 'subscription_type']
+    list_filter = ['is_enabled', 'subscription_type', 'debug_mode']
     search_fields = ['key', 'name', 'subject']
-    actions = ['enable', 'disable']
+    actions = ['enable', 'disable', 'set_debug_mode', 'unset_debug_mode']
 
-    properties_fields = ['key', 'name', 'subscription_type', 'is_enabled']
+    properties_fields = [
+        'key', 'name', 'subscription_type', 'is_enabled', 'debug_mode',
+    ]
     emails_fields = ['subject', 'prefix_subject', 'template_file']
     if SUBJECT_PREFIX is None:
         emails_fields.remove('prefix_subject')
@@ -80,6 +83,14 @@ class CampaignAdmin(admin.ModelAdmin):
     def disable(self, request, queryset):
         queryset.update(is_enabled=False)
     disable.short_description = _("Disable selected e-mail campaigns")
+
+    def set_debug_mode(self, request, queryset):
+        queryset.update(debug_mode=True)
+    enable.short_description = _("Set debug mode")
+
+    def unset_debug_mode(self, request, queryset):
+        queryset.update(debug_mode=False)
+    disable.short_description = _("Unset debug mode")
 
     def get_queryset(self, request):
         return (
