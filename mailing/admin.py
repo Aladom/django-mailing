@@ -144,13 +144,12 @@ class MailAdmin(admin.ModelAdmin):
         terms = re.split(r'(?:^|\s+)([a-z0-9,_-]+:(?:".*?"|[^ ]+))(?:\s+|$)', search_term)
         terms = filter(None, terms)
         query = Q()
-        for search_term in terms:
-            search_term = search_term.split(":", 1)
-            headers = search_term[0].split(",")
-            header_value = search_term[1]
-            if header_value[0] == "\"":
+        for term in terms:
+            term = term.split(":", 1)
+            headers = term[0].split(",")
+            header_value = term[1]
+            if header_value[0] == header_value[-1] == '"':
                 header_value = header_value[1:-1]
-            print(header_value)
             if len(headers) > 1:
                 query |= Q(
                     headers__name__in=headers,
