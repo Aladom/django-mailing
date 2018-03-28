@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
+import re
+
 from django.conf import settings
 from django.contrib import admin
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 from .conf import pytz_is_available, SUBJECT_PREFIX
@@ -130,6 +133,31 @@ class MailAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('campaign')
+
+    def get_search_results(self, request, queryset, search_term):
+        try:
+            return self.get_headers_search_results(request, queryset, search_term)
+        except Exception:
+            return super().get_search_results(request, queryset, search_term)
+
+    def get_headers_search_results(self, request, queryset, search_term):
+        search_terms = search_term.split(" ")
+        query = Q()
+        for search_term in search_terms:
+            search_term = search_term.split(":", 1)
+            headers = search_term[0].split(",")
+            header_value = search_term[1]
+            if len(headers) > 1:
+                query |= Q(
+                    headers__name__in=headers,
+                    headers__value__icontains=header_value
+                )
+            else:
+                query |= Q(
+                    headers__name__iexact=headers[0],
+                    headers__value__icontains=header_value
+                )
+        return queryset.filter(query), True
 
 
 @admin.register(SubscriptionType)
