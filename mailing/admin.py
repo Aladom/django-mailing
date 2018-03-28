@@ -141,12 +141,16 @@ class MailAdmin(admin.ModelAdmin):
             return super().get_search_results(request, queryset, search_term)
 
     def get_headers_search_results(self, request, queryset, search_term):
-        search_terms = search_term.split(" ")
+        terms = re.split(r'(?:^|\s+)([a-z0-9,_-]+:(?:".*?"|[^ ]+))(?:\s+|$)', search_term)
+        terms = filter(None, terms)
         query = Q()
-        for search_term in search_terms:
+        for search_term in terms:
             search_term = search_term.split(":", 1)
             headers = search_term[0].split(",")
             header_value = search_term[1]
+            if header_value[0] == "\"":
+                header_value = header_value[1:-1]
+            print(header_value)
             if len(headers) > 1:
                 query |= Q(
                     headers__name__in=headers,
