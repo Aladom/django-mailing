@@ -159,7 +159,7 @@ msgstr ""
 
 #: mailing/models/base.py:121
 msgid "debug mode"
-msgstr ""
+msgstr "mode debug"
 
 #: mailing/models/base.py:124
 msgid "template file"
