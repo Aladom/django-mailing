@@ -202,12 +202,12 @@ class SubscriptionAdmin(admin.ModelAdmin):
         form = BulkSubscriptionManagementForm(request.POST or None)
         if request.method == 'POST' and form.is_valid():
             emails = form.cleaned_data['emails'].splitlines()
-            unsubscribe = form.cleaned_data['unsubscribe']
-            pairs = set(product(emails, unsubscribe.values_list(
-                'id', flat=True)))
+            unsubscribe = form.cleaned_data['unsubscribe'].values_list(
+                'id', flat=True)
+            pairs = set(product(emails, unsubscribe))
             queryset = Subscription.objects.filter(
                 email__in=emails,
-                subscription_type_id__in=unsubscribe
+                subscription_type_id__in=unsubscribe,
             )
             pairs_to_update = set(queryset.values_list(
                 'email', 'subscription_type_id'))
