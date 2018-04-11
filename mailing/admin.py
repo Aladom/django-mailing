@@ -7,6 +7,7 @@ from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
 from django.db.models import Q
+from django.db.models.functions import Lower
 from django import forms
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
@@ -201,21 +202,26 @@ class SubscriptionAdmin(admin.ModelAdmin):
     def bulk_subscription_management_view(self, request, *args, **kwargs):
         form = BulkSubscriptionManagementForm(request.POST or None)
         if request.method == 'POST' and form.is_valid():
-            emails = form.cleaned_data['emails'].splitlines()
+            emails = set(
+                x.lower() for x in form.cleaned_data['emails'].splitlines()
+            )
             unsubscribe = form.cleaned_data['unsubscribe'].values_list(
                 'id', flat=True)
             pairs = set(product(emails, unsubscribe))
-            queryset = Subscription.objects.filter(
-                email__in=emails,
-                subscription_type_id__in=unsubscribe,
+            queryset = (
+                Subscription.objects.annotate(lower_email=Lower('email'))
+                .filter(
+                    lower_email__in=emails,
+                    subscription_type_id__in=unsubscribe,
+                )
             )
-            pairs_to_update = set(queryset.values_list(
-                'email', 'subscription_type_id'))
+            pairs_to_update = set(
+                queryset.values_list('lower_email', 'subscription_type_id')
+            )
             pairs_to_insert = pairs - pairs_to_update
             Subscription.objects.bulk_create([
-                Subscription(
-                    email=x[0], subscription_type_id=x[1]
-                ) for x in pairs_to_insert
+                Subscription(email=x[0], subscription_type_id=x[1])
+                for x in pairs_to_insert
             ])
             queryset.update(subscribed=False)
             return HttpResponseRedirect(
