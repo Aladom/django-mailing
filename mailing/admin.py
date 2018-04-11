@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
+from itertools import product
 import re
 
 from django.conf import settings
+from django.conf.urls import url
 from django.contrib import admin
 from django.db.models import Q
+from django import forms
+from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from .conf import pytz_is_available, SUBJECT_PREFIX
@@ -171,6 +177,18 @@ class SubscriptionTypeAdmin(admin.ModelAdmin):
     fields = ['name', 'subscribed_by_default', 'description']
 
 
+def unsubscribe(modeladmin, request, queryset):
+    return HttpResponseRedirect(reverse('admin:bulk_subscription_management'))
+unsubscribe.short_description = _("Unsubscribe")
+
+
+class BulkSubscriptionManagementForm(forms.Form):
+    emails = forms.CharField(widget=forms.Textarea)
+    unsubscribe = forms.ModelMultipleChoiceField(
+        widget=forms.CheckboxSelectMultiple,
+        queryset=SubscriptionType.objects.all())
+
+
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = [
@@ -178,6 +196,47 @@ class SubscriptionAdmin(admin.ModelAdmin):
     ]
     list_filter = ['subscription_type', 'subscribed']
     search_fields = ['email']
+    actions = [unsubscribe]
+
+    def bulk_subscription_management_view(self, request, *args, **kwargs):
+        form = BulkSubscriptionManagementForm(request.POST or None)
+        if request.method == 'POST' and form.is_valid():
+            emails = form.cleaned_data['emails'].splitlines()
+            unsubscribe = form.cleaned_data['unsubscribe']
+            pairs = set(product(emails, unsubscribe.values_list(
+                'id', flat=True)))
+            queryset = Subscription.objects.filter(
+                email__in=emails,
+                subscription_type_id__in=unsubscribe
+            )
+            pairs_to_update = set(queryset.values_list(
+                'email', 'subscription_type_id'))
+            pairs_to_insert = pairs - pairs_to_update
+            Subscription.objects.bulk_create([
+                Subscription(
+                    email=x[0], subscription_type_id=x[1]
+                ) for x in pairs_to_insert
+            ])
+            queryset.update(subscribed=False)
+            return HttpResponseRedirect(
+                reverse('admin:mailing_subscription_changelist'))
+        context = dict(
+            title=_("Subscription management"),
+            form=form,
+        )
+        return TemplateResponse(
+            request,
+            'admin/mailing/bulk_subscription_management.html',
+            context)
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            url(r'^bulk-subscription-management/$',
+                self.bulk_subscription_management_view,
+                name='bulk_subscription_management'),
+        ]
+        return my_urls + urls
 
 
 @admin.register(Blacklist)
