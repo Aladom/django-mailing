@@ -83,8 +83,13 @@ class Subscription(models.Model):
         verbose_name=_("subscription type"))
     subscribed = models.BooleanField(
         default=True, verbose_name=_("subscribed"))
+    last_modified = models.DateTimeField(default=timezone.now)
 
     objects = SubscriptionManager()
+
+    def save(self, *args, **kwargs):
+        self.last_modified = timezone.now()
+        super().save(*args, **kwargs)
 
 
 class Campaign(models.Model):
