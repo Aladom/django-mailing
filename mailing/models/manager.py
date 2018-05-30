@@ -10,6 +10,7 @@ from django.core.files import File
 from django.core.files.base import ContentFile
 from django.db import IntegrityError
 from django.db.models import Manager
+from django.utils import timezone
 
 __all__ = [
     'MailHeaderManager', 'BlacklistManager', 'DynamicAttachmentManager',
@@ -114,4 +115,4 @@ class SubscriptionManager(Manager):
             self.create(**kwargs)
         except IntegrityError:
             self.get_queryset().filter(**filter_kwargs).update(
-                subscribed=kwargs['subscribed'])
+                subscribed=kwargs['subscribed'], last_modified=timezone.now())

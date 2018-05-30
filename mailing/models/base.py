@@ -83,6 +83,7 @@ class Subscription(models.Model):
         verbose_name=_("subscription type"))
     subscribed = models.BooleanField(
         default=True, verbose_name=_("subscribed"))
+    date_joined = models.DateTimeField(default=timezone.now)
     last_modified = models.DateTimeField(default=timezone.now)
 
     objects = SubscriptionManager()
