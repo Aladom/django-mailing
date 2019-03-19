@@ -8,7 +8,8 @@ from django.utils.deconstruct import deconstructible
 
 __all__ = [
     'TEMPLATES_UPLOAD_DIR', 'ATTACHMENTS_DIR', 'ATTACHMENTS_UPLOAD_DIR',
-    'SUBJECT_PREFIX',
+    'SUBJECT_PREFIX', 'UNEXISTING_CAMPAIGN_FAIL_SILENTLY',
+    'MIRROR_SIGNING_SALT', 'SUBSCRIPTION_SIGNING_SALT', 'DEBUG_EMAIL',
     'TextConfRef', 'StrConfRef', 'pytz_is_available',
 ]
 
@@ -101,9 +102,15 @@ If you change it, all subscriptions management links generated formerly will be
 broken and return a 400 Bad Request HTTP status.
 """
 
+DEBUG_EMAIL = get_setting('DEBUG_EMAIL', None)
+"""E-mail address where to send mails which campaigns are in debug mode.
+If not given, mails which campaigns are in debug mode will stay in state
+"pending" until the debug mode is deactivated.
+"""
+
 
 @deconstructible
-class TextConfRef(object):
+class TextConfRef:
 
     def __init__(self, name, within=None):
         self.name = name

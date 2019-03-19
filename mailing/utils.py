@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2016 Aladom SAS & Hosting Dvpt SAS
+# Copyright (c) 2019 Aladom SAS & Hosting Dvpt SAS
 from functools import lru_cache
 import logging
 import re
@@ -15,7 +15,9 @@ from django.template.backends.django import DjangoTemplates
 from django.utils import timezone
 from django.utils.html import strip_tags
 
-from .conf import UNEXISTING_CAMPAIGN_FAIL_SILENTLY, SUBSCRIPTION_SIGNING_SALT
+from .conf import (
+    UNEXISTING_CAMPAIGN_FAIL_SILENTLY, SUBSCRIPTION_SIGNING_SALT, DEBUG_EMAIL,
+)
 from .models import Mail, Campaign, Blacklist
 
 __all__ = [
@@ -287,14 +289,17 @@ def send_mail(mail):
 
     from_email = headers.pop('From', settings.DEFAULT_FROM_EMAIL)
     if mail.campaign and mail.campaign.debug_mode:
-        to_emails = ['dev@aladom.fr']
-        cc_emails = []
-        bcc_emails = []
         mail_logger.warning(
             "[DEBUG] Send mail {id} (campaign: {campaign})".format(
                 id=mail.pk, campaign=mail.campaign.key
             )
         )
+        if DEBUG_EMAIL is not None:
+            to_emails = [DEBUG_EMAIL]
+            cc_emails = []
+            bcc_emails = []
+        else:
+            return None
     else:
         to_emails = filter(None, map(
             str.strip, headers.pop('To', '').split(',')))
@@ -333,13 +338,14 @@ def send_queued_mails():
 
     for mail in mails:
         try:
-            send_mail(mail)
+            msg = send_mail(mail)
         except Exception as e:
             mail.status = Mail.STATUS_FAILURE
             mail.failure_reason = str(e)
             mail.save()
         else:
-            successes.append(mail.pk)
+            if msg is not None:
+                successes.append(mail.pk)
 
     if successes:
         mails.filter(pk__in=successes).update(status=Mail.STATUS_SENT,
