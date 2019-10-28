@@ -158,7 +158,7 @@ def render_mail(subject, html_template, headers, context=None, **kwargs):
             mail.delete()
             raise NoMoreRecipients("All main recipients left are unsubscribed")
         rendered_headers['To'] = ', '.join(actual_to)
-        email = actual_to[0]
+        email = actual_to[0].replace('\n', ' ').replace('\r', '')
         match = re.match(r'.*\s<([^<> ]+)>', email)
         if match:
             email = match.group(1)
